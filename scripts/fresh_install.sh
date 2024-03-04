@@ -9,28 +9,28 @@ if [ $(which jenkins) ]; then
 fi
 
 # Install java
-sudo apt update
-sudo apt install -y curl fontconfig openjdk-17-jre
+apt update
+apt install -y curl fontconfig openjdk-17-jre
 
 # Install jenkins
-sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+wget -O /usr/share/keyrings/jenkins-keyring.asc \
   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
 echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  https://pkg.jenkins.io/debian-stable binary/ | tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt update
-sudo apt install jenkins
+apt update
+apt install jenkins
 
 # Enable service
-sudo systemctl daemon-reload
-sudo systemctl enable jenkins
+systemctl daemon-reload
+systemctl enable jenkins
 
 # Start jenkins
-sudo systemctl start jenkins &
+systemctl start jenkins &
 
 # Auth for the first time
-sudo wget http://192.168.1.219:8080/jnlpJars/jenkins-cli.jar
-pat=$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword)
+wget http://localhost:8080/jnlpJars/jenkins-cli.jar -P "../artifacts"
+pat=$(cat /var/lib/jenkins/secrets/initialAdminPassword)
 #java -jar jenkins-cli.jar -s http://192.168.1.219:8080 -auth admin:$pat
 
-echo "jenkins.model.Jenkins.instance.securityRealm.createAccount('\""$username"\"', '\""$password"\"')" | java -jar jenkins-cli.jar -auth admin:$pat -s http://192.168.1.219:8080/ groovy =
+echo "jenkins.model.Jenkins.instance.securityRealm.createAccount('\""$username"\"', '\""$password"\"')" | java -jar jenkins-cli.jar -auth admin:$pat -s http://localhost:8080/ groovy =
