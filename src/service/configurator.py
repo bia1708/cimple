@@ -2,16 +2,22 @@ import requests
 import os
 import subprocess
 from domain.server import Server
-from repository.repository import Repository
+from repository.persistent_repository import PersistentRepository
 
 class Configurator:
     def __init__(self, instances):
-        self.__instances = Repository()
+        self.__instances = PersistentRepository("../artifacts/data.bin")
+        self.__current_server = None
 
-    def connect_to_existing_jenkins(self, jenkins_url, pat):
-        # Implement logic to connect to an existing Jenkins instance
-        # This could involve obtaining user input for Jenkins URL, credentials, etc.
-        pass
+    def connect_to_existing_jenkins(self, username, password, jenkins_url):
+        for instance in self.__instances.get_all():
+            if instance.get_url() == jenkins_url:
+                self.__current_server = instance
+                return
+        pat = self.get_pat(username, password, jenkins_url)
+        jnlp_file = self.get_jnlp(username, password, jenkins_url)
+        # print("JNLP FILE: " + jnlp_file)
+        self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
 
     def perform_fresh_install(self, username, password):
         script_path = "./scripts/fresh_install.sh"
@@ -30,16 +36,16 @@ class Configurator:
             return None, e.returncode
         
         if exit_code == 0:
-            token = self.get_pat(username, password)
+            token = self.get_pat(username, password, "http://localhost:8080")
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
             print([str(x) for x in self.__instances.get_all()])
             
         
-    def get_pat(self, username, password):
+    def get_pat(self, username, password, url):
         script_path = "./scripts/generate_pat.sh"
         
         try:
-            command = ["bash", script_path, username, password]
+            command = ["bash", script_path, username, password, url]
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
 
             output = result.stdout.strip()            
@@ -48,13 +54,28 @@ class Configurator:
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
+        
+    def get_jnlp(self, username, password, url):
+        script_path = "./scripts/get_jar.sh"
+        
+        try:
+            command = ["bash", script_path, username, password, url]
+            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+
+            output = result.stdout.strip()            
+            jnlp_file = output.split(":")[1]
+            return jnlp_file
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
             
     def add_jenkins_instance(self, url, username, token, jnlp_file):
         new_server = Server(url, username, token, jnlp_file)
         self.__instances.add(new_server)
+        self.__current_server = new_server
         
     def extract_variables(self, output):
         pass
 
-config = Configurator("")
-config.perform_fresh_install("bia", "1234")
+    def get_current_server(self):
+        return self.__current_server

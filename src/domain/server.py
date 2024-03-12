@@ -1,3 +1,4 @@
+import pickle
 
 class Server:
     def __init__(self, url, username, token, jnlp_file):
@@ -29,6 +30,9 @@ class Server:
         
     def set_jnlp_file(self, jnlp_file):
         self.__jnlp_file = jnlp_file
+        
+    def serialize(self):
+        return pickle.dumps(self)
     
     def __str__(self):
         return self.__url + ", " + self.__username + ", " + self.__token + ", " + self.__jnlp_file
