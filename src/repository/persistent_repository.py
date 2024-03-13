@@ -29,7 +29,7 @@ class PersistentRepository():
         self.__items.append(item)
         
     def get_current(self):
-        return self.__items[-1]
+        return self.__items[-1] if len(self.__items) > 0 else None
         
     def read_from_file(self):
         with open(self.__filename, 'rb') as file:
