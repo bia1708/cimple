@@ -24,16 +24,23 @@ class PersistentRepository():
         self.__items.append(item)
         self.write_to_file()
         
+    def update_current(self, item):
+        self.__items.remove(item)
+        self.__items.append(item)
+        
+    def get_current(self):
+        return self.__items[-1]
+        
     def read_from_file(self):
         with open(self.__filename, 'rb') as file:
             return pickle.load(file)
 
     def write_to_file(self):
         with open(self.__filename, 'wb') as file:
-            pickle.dump(self.get_all_serialized(), file)
+            pickle.dump(self.__items, file)
     
     def get_all(self):
         return self.__items
     
-    def get_all_serialized(self):
-        return [server.serialize() for server in self.__items]
+    # def get_all_serialized(self):
+    #     return [server.serialize() for server in self.__items]
