@@ -5,14 +5,15 @@ from domain.server import Server
 from repository.persistent_repository import PersistentRepository
 
 class Configurator:
-    def __init__(self, instances):
+    def __init__(self):
         self.__instances = PersistentRepository("../artifacts/data.bin")
-        self.__current_server = None
+        self.__current_server = self.__instances.get_current()
 
     def connect_to_existing_jenkins(self, username, password, jenkins_url):
         for instance in self.__instances.get_all():
             if instance.get_url() == jenkins_url:
                 self.__current_server = instance
+                self.__instances.update_current(instance)         
                 return
         pat = self.get_pat(username, password, jenkins_url)
         jnlp_file = self.get_jnlp(username, password, jenkins_url)
@@ -73,6 +74,7 @@ class Configurator:
         new_server = Server(url, username, token, jnlp_file)
         self.__instances.add(new_server)
         self.__current_server = new_server
+        self.__instances.update_current(self.__current_server)
         
     def extract_variables(self, output):
         pass
