@@ -41,6 +41,20 @@ class Configurator:
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
             print([str(x) for x in self.__instances.get_all()])
             
+    def install_plugins(self):
+        script_path = "./scripts/install_plugins.sh"
+        
+        try:
+            command = ["bash", script_path, self.__current_server.get_username(), self.__current_server.get_token(), self.__current_server.get_jnlp_file(), self.__current_server.get_url()]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()            
+            # token = output.split(":")[1]
+            # return token
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
+            
         
     def get_pat(self, username, password, url):
         script_path = "./scripts/generate_pat.sh"
