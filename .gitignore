@@ -1,3 +1,4 @@
-*log
+*.log
+wget-log*
 __pycache__
 artifacts/*

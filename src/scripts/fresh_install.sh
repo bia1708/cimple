@@ -21,7 +21,8 @@ apt update
 apt install jenkins
 
 # Disable the setup wizard
-java -Djenkins.install.runSetupWizard=false -jar jenkins.war 
+# java -Djenkins.install.runSetupWizard=false -jar /usr/share/java/jenkins.war 
+sed -i 's/JAVA_ARGS="-Djava.awt.headless=true"/JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"/' /etc/default/jenkins
 
 # Enable service
 systemctl daemon-reload

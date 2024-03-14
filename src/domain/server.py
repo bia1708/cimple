@@ -17,7 +17,7 @@ class Server:
         return self.__username
     
     def get_jnlp_file(self):
-        return self.j__nlp_file
+        return self.__jnlp_file
 
     def set_url(self, url):
         self.__url = url
