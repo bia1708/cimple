@@ -39,7 +39,8 @@ class Configurator:
         if exit_code == 0:
             token = self.get_pat(username, password, "http://localhost:8080")
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
-            print([str(x) for x in self.__instances.get_all()])
+            # print([str(x) for x in self.__instances.get_all()])
+        self.install_plugins()
             
     def install_plugins(self):
         script_path = "./scripts/install_plugins.sh"
@@ -55,6 +56,18 @@ class Configurator:
             print(f"Error: {e}")
             return None, e.returncode
             
+    def enable_proxy(self):
+        script_path = "./scripts/enable_proxy.sh"
+        
+        try:
+            command = ["/usr/bin/sudo", script_path]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip() 
+            print(output)           
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
         
     def get_pat(self, username, password, url):
         script_path = "./scripts/generate_pat.sh"
