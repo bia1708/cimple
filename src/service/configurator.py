@@ -21,7 +21,7 @@ class Configurator:
         self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
 
     def perform_fresh_install(self, username, password):
-        script_path = "./scripts/fresh_install.sh"
+        script_path = "./scripts/server_configuration/fresh_install.sh"
 
         try:
             command = ["/usr/bin/sudo", script_path, username, password]
@@ -32,7 +32,6 @@ class Configurator:
             
             print(output, exit_code)
         except subprocess.CalledProcessError as e:
-            # Handle errors if the subprocess returns a non-zero exit code
             print(f"Error: {e}")
             return None, e.returncode
         
@@ -43,7 +42,7 @@ class Configurator:
         self.install_plugins()
             
     def install_plugins(self):
-        script_path = "./scripts/install_plugins.sh"
+        script_path = "./scripts/server_configuration/install_plugins.sh"
         
         try:
             command = ["bash", script_path, self.__current_server.get_username(), self.__current_server.get_token(), self.__current_server.get_jnlp_file(), self.__current_server.get_url()]
@@ -57,7 +56,7 @@ class Configurator:
             return None, e.returncode
             
     def enable_proxy(self):
-        script_path = "./scripts/enable_proxy.sh"
+        script_path = "./scripts/server_configuration/enable_proxy.sh"
         
         try:
             command = ["/usr/bin/sudo", script_path]
@@ -70,7 +69,7 @@ class Configurator:
             return None, e.returncode
         
     def get_pat(self, username, password, url):
-        script_path = "./scripts/generate_pat.sh"
+        script_path = "./scripts/server_configuration/generate_pat.sh"
         
         try:
             command = ["bash", script_path, username, password, url]
@@ -84,7 +83,7 @@ class Configurator:
             return None, e.returncode
         
     def get_jnlp(self, username, password, url):
-        script_path = "./scripts/get_jar.sh"
+        script_path = "./scripts/server_configuration/get_jar.sh"
         
         try:
             command = ["bash", script_path, username, password, url]
