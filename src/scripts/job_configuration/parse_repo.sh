@@ -3,6 +3,14 @@
 username=$1
 repo=$2
 
+# Check if requirements.txt exists
+gh api \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  /repos/$username/$repo/requirements.txt
+exit_code=$?
+echo $exit_code
+
 # Check if readme exists
 gh api \
   -H "Accept: application/vnd.github+json" \
