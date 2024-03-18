@@ -1,4 +1,5 @@
 import subprocess
+import os
 from repository.repository import Repository
 from domain.git_repo import Git_Repo
 
@@ -8,6 +9,7 @@ class Job_Configurator:
         self.__jobs = Repository()
 
     def create_job(self, git_repo):
+        os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
         self.parse_repo(git_repo)
 
     def init_repo(self, repo_name, git_username, git_pat):
