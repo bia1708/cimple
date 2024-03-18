@@ -41,7 +41,7 @@ class Job_Configurator:
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
-            print(output)
+            # print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
