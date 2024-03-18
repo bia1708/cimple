@@ -3,6 +3,7 @@
 username=$1
 repo=$2
 
+rm -rf ../artifacts/$repo
 # Check if requirements.txt exists
 requirements=$(gh api \
   -H "Accept: application/vnd.github+json" \
@@ -32,14 +33,14 @@ echo "readme:$exit_code"
 # If readme exists, parse it for build instructions/requirements
 if [ $exit_code -eq 0 ]; then
   echo "README found! Downloading file for parsing..."
-  url=$(echo $requirements | jq -r '.download_url')
-  echo $url
+  url=$(echo $readme | jq -r '.download_url')
   wget -O "../artifacts/$repo/readme" $url
-  requirements_in_readme=$(cat ../artifacts/$repo/readme | grep requirements)
-  if [ -z $requirements_in_readme ]; then
+  cat ../artifacts/$repo/readme | grep -i requirements > ../artifacts/$repo/readme_requirements.txt
+  if [ -z "$(cat ../artifacts/$repo/readme_requirements.txt)" ]; then
     echo "readme_requirements:1"
   else
-    echo $requirements > ../artifacts/$repo/requirements.txt
+    echo "readme_requirements:0"
+  fi
 fi
 
 #TODO: maybe remove downloaded files, since they will be duplicated for the user
