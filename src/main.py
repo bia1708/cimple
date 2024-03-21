@@ -9,5 +9,5 @@ if __name__ == '__main__':
     print(config.get_current_server())
     # config.install_plugins()
     # config.enable_proxy()
-    job_config = Job_Configurator()
+    job_config = Job_Configurator(config.get_current_server())
     job_config.init_repo("cimple", "bia1708", "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")

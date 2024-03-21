@@ -39,3 +39,6 @@ pat=$(cat /var/lib/jenkins/secrets/initialAdminPassword)
 # Create account for the user with given username and password
 echo "jenkins.model.Jenkins.instance.securityRealm.createAccount('$username', '$password')" | \
   java -jar ../artifacts/jenkins-cli.jar -auth admin:$pat -s http://localhost:8080/ groovy =
+
+# Install jenkins job builder
+pip install jenkins-job-builder
