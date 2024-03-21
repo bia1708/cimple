@@ -5,6 +5,7 @@ configuration-as-code:latest
 credentials-binding:latest
 email-ext:latest
 git:latest
+github:latest
 job-dsl:latest
 github-branch-source:latest
 gradle:latest

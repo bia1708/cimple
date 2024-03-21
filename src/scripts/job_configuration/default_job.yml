@@ -1,0 +1,9 @@
+- job:
+    name: my_hello_world_job
+    parameters:
+      - string:
+          name: Message
+          default: Hello World
+          description: A message to echo
+    builders:
+      - shell: "echo $Message"

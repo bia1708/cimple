@@ -15,4 +15,3 @@ do
 done < "$file"
 
 java -jar $jnlp -s $url -auth $username:$pat restart
-

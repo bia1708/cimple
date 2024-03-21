@@ -4,13 +4,25 @@ from repository.repository import Repository
 from domain.git_repo import Git_Repo
 
 class Job_Configurator:
-    def _init__(self, server):
+    def __init__(self, server):
         self.__server = server
         self.__jobs = Repository()
 
     def create_job(self, git_repo):
-        os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
-        self.parse_repo(git_repo)
+        # os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
+        # self.parse_repo(git_repo)
+        self.create_jenkins_jobs_ini()
+
+        script_path = "./scripts/job_configuration/create_job.sh"
+        try:
+            command = ["bash", script_path]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()
+            print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
 
     def init_repo(self, repo_name, git_username, git_pat):
         git_repo = Git_Repo(repo_name, git_username, git_pat)
@@ -45,3 +57,19 @@ class Job_Configurator:
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
+
+    def create_jenkins_jobs_ini(self):
+        text = "[job_builder]\n" + \
+            "ignore_cache=True\n" + \
+            "keep_descriptions=False\n" + \
+            "include_path=.\n" + \
+            "recursive=False\n" + \
+            "allow_duplicates=False\n\n" + \
+            "[jenkins]\n" + \
+            f"user={self.__server.get_username()}\n" + \
+            f"password={self.__server.get_token()}\n" + \
+            f"url={self.__server.get_url()}\n"
+
+        ini_file = open("../artifacts/jenkins_jobs.ini", "w")
+        ini_file.write(text)
+        ini_file.close()
