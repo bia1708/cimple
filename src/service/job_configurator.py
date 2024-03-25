@@ -10,7 +10,7 @@ class Job_Configurator:
 
     def create_job(self, git_repo):
         # os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
-        # self.parse_repo(git_repo)
+        self.parse_repo(git_repo)
         self.create_jenkins_jobs_ini()
 
         script_path = "./scripts/job_configuration/create_job.sh"
@@ -27,12 +27,13 @@ class Job_Configurator:
     def init_repo(self, repo_name, git_username, git_pat):
         git_repo = Git_Repo(repo_name, git_username, git_pat)
         self.init_gh(git_pat)
+        #TODO: add git credentials in Jenkins as well, to be used later
         job = self.create_job(git_repo)
         # self.__jobs.add(job)
 
     def init_gh(self, git_pat):
         # TODO: MAKE SURE YOU ASK FOR GIST ACCESS: https://cli.github.com/manual/gh_auth_login
-        # TODO: maybe validate username+token based og gh auth status output
+        # TODO: maybe validate username+token based on gh auth status output
         script_path = "./scripts/job_configuration/git_auth.sh"
 
         try:
@@ -59,6 +60,7 @@ class Job_Configurator:
             return None, e.returncode
 
     def create_jenkins_jobs_ini(self):
+        # Create .ini script for Jenkins Job Builder connection
         text = "[job_builder]\n" + \
             "ignore_cache=True\n" + \
             "keep_descriptions=False\n" + \
