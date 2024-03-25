@@ -1,9 +1,18 @@
 - job:
-    name: my_hello_world_job
-    parameters:
-      - string:
-          name: Message
-          default: Hello World
-          description: A message to echo
-    builders:
-      - shell: "echo $Message"
+    name: with_props
+    project-type: pipeline
+    sandbox: true
+    properties:
+      - inject:
+          keep-system-variables: true
+          properties-file: "../../artifacts/properties_file.props"
+    dsl:
+      - script:
+          !include-raw job.dsl
+    # pipeline-scm:
+    #   scm:
+    #     - hg:
+    #         url: "https://github.com/bia1708/cimple"
+    #         clean: true
+    #   script-path: Jenkinsfile
+    #   lightweight-checkout: true

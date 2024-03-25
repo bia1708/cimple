@@ -1,0 +1,10 @@
+job('cimple'){{
+    agent any
+    stage {{
+        steps {{
+            script {{
+                sh 'printenv'
+            }}
+        }}
+    }}
+}}

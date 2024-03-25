@@ -10,4 +10,4 @@ if __name__ == '__main__':
     # config.install_plugins()
     # config.enable_proxy()
     job_config = Job_Configurator(config.get_current_server())
-    job_config.init_repo("cimple", "bia1708", "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")
+    job_config.init_repo("https://github.com/bia1708/cimple.git", "bia1708", "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")
