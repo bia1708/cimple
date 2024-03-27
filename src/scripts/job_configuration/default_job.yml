@@ -1,18 +1,19 @@
 - job:
-    name: with_props
+    name: unjob
     project-type: pipeline
     sandbox: true
     properties:
       - inject:
           keep-system-variables: true
-          properties-file: "../../artifacts/properties_file.props"
-    dsl:
-      - script:
-          !include-raw job.dsl
-    # pipeline-scm:
-    #   scm:
-    #     - hg:
-    #         url: "https://github.com/bia1708/cimple"
-    #         clean: true
-    #   script-path: Jenkinsfile
-    #   lightweight-checkout: true
+          properties-file: "/var/lib/jenkins/workspace/properties_file.props"
+    dsl: |
+        node {{
+            stage("test") {{
+                script {{
+                    sh 'pwd'
+                    def props = readProperties  file:'/var/lib/jenkins/workspace/properties_file.props'
+                    env.repo= props['REPO']
+                    sh 'echo ${{repo}}'
+                }}
+            }}
+        }}

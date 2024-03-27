@@ -2,7 +2,7 @@
 node {{
     stage("test") {{
         script {{
-            sh 'printenv'
+            sh 'pwd && printenv'
         }}
     }}
 }}
