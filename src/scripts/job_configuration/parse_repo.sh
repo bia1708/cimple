@@ -9,11 +9,11 @@ repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get
 # Empty properties file (this is the case for a new repo)
 > $props
 
-echo "REPO:$2" >> $props
+echo "REPO=$2" >> $props
 
 # Get primary language from repo (i.e. cimple's would be Python)
 language=`gh api repos/$username/$repo_name/languages | jq 'to_entries | max_by(.value) | .key'`
-echo "LANGUAGE:$language" >> $props
+echo "LANGUAGE=$language" >> $props
 
 # Check if requirements.txt exists
 requirements=$(gh api \
@@ -27,10 +27,10 @@ req_exit_code=$?
 if [ $req_exit_code -eq 0 ]; then
   echo "requirements.txt found!"
   # url=$(echo $requirements | jq -r '.download_url')
-  echo "REQUIREMENTS:true" >> $props
+  echo "REQUIREMENTS=true" >> $props
   # wget -O "../artifacts/$repo/requirements.txt" $url
 else
-  echo "REQUIREMENTS:false" >> $props
+  echo "REQUIREMENTS=false" >> $props
 fi
 
 # Check if readme exists
@@ -49,9 +49,9 @@ if [ $readme_exit_code -eq 0 ]; then
   check_instructions=$(cat ../artifacts/readme | grep -Eio "build|instructions|install|run")
   rm ../artifacts/readme
   if [ "$check_instructions" != "" ]; then
-    echo "INSTRUCTIONS:true" >> $props
+    echo "INSTRUCTIONS=true" >> $props
   else
-    echo "INSTRUCTIONS:false" >> $props
+    echo "INSTRUCTIONS=false" >> $props
   fi
 fi
 

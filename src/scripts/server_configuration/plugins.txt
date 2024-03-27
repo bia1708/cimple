@@ -8,6 +8,7 @@ git:latest
 github:latest
 job-dsl:latest
 envinject:latest
+pipeline-utility-steps:latest
 github-branch-source:latest
 gradle:latest
 ldap:latest

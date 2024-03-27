@@ -15,7 +15,7 @@ class Job_Configurator:
 
         script_path = "./scripts/job_configuration/create_job.sh"
         try:
-            command = ["bash", script_path]
+            command = ["/bin/sudo", script_path]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
