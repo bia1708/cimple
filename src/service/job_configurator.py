@@ -26,18 +26,19 @@ class Job_Configurator:
 
     def init_repo(self, repo_name, git_username, git_pat):
         git_repo = Git_Repo(repo_name, git_username, git_pat)
-        self.init_gh(git_pat)
+        self.init_gh(git_pat, git_username, repo_name, self.__server.get_username(), self.__server.get_token())
         #TODO: add git credentials in Jenkins as well, to be used later
+        # self.setup_webhooks(git_repo)
         job = self.create_job(git_repo)
         # self.__jobs.add(job)
 
-    def init_gh(self, git_pat):
+    def init_gh(self, git_pat, git_username, repo_name, username, pat):
         # TODO: MAKE SURE YOU ASK FOR GIST ACCESS: https://cli.github.com/manual/gh_auth_login
         # TODO: maybe validate username+token based on gh auth status output
         script_path = "./scripts/job_configuration/git_auth.sh"
 
         try:
-            command = ["bash", script_path, git_pat]
+            command = ["bash", script_path, git_pat, git_username, repo_name, username, pat]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
@@ -45,6 +46,18 @@ class Job_Configurator:
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
+
+    def setup_webhooks(self, git_repo):
+        script_path = "./scripts/job_configuration/enable_webhooks.sh"
+
+        try:
+            command = ["bash", script_path, git_repo.get_repo_name(), git_repo.get_git_username(), self.__server.get_url()]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()
+            print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
 
     def parse_repo(self, git_repo):
         script_path = "./scripts/job_configuration/parse_repo.sh"

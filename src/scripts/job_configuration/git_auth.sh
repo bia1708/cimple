@@ -1,6 +1,13 @@
 #!/bin/bash
 
 git_token=$1
+git_username=$2
+repo=$3
+username=$4
+token=$5
+CRUMB=../../aritfacts/cookie
+
+repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get only repo name from repo link
 
 # Not auth output:
 # You are not logged into any GitHub hosts. Run gh auth login to authenticate.
@@ -15,3 +22,16 @@ if [ ! -z "$output" ]; then
 fi
 
 gh auth status
+
+curl -H $CRUMB -X POST "http://$username:$token@localhost:8080/credentials/store/system/domain/_/createCredentials" \
+--data-urlencode 'json={
+  "": "0",
+  "credentials": {
+    "scope": "GLOBAL",
+    "id": "git-token-'$repo_name'",
+    "username": '$git_username',
+    "password": "'$git_token'",
+    "description": "git_credentials",
+    "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+  }
+}'
