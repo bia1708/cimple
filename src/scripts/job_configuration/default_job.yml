@@ -19,15 +19,17 @@
                             // Set environment variables
                             def props = readProperties  file:'/var/lib/jenkins/workspace/properties_file.props'
                             env.REPO= props['REPO']
+                            env.REPO_NAME = props['REPO_NAME']
+                            echo "${{env.REPO_NAME}}"
                         }}
                     }}
                 }}
-                stage('Checkout HDL and GHDL repositories') {{
+                stage('Checkout') {{
                     steps {{
                         checkout([
                             $class: 'GitSCM', branches: [[name: '*/main']],
                             extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "${{WORKSPACE}}"],],
-                            userRemoteConfigs: [[credentialsId: 'b589aa01-c47f-4168-8384-40a8156b77ac', url: "$REPO"]]
+                            userRemoteConfigs: [[credentialsId: "git_pat_${{REPO_NAME}}", url: "$REPO"]]
                         ])
                     }}
                 }}

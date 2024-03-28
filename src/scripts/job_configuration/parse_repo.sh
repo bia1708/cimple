@@ -10,6 +10,7 @@ repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get
 > $props
 
 echo "REPO=$2" >> $props
+echo "REPO_NAME=$repo_name" >> $props
 
 # Get primary language from repo (i.e. cimple's would be Python)
 language=`gh api repos/$username/$repo_name/languages | jq 'to_entries | max_by(.value) | .key'`
