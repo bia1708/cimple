@@ -23,15 +23,25 @@ fi
 
 gh auth status
 
-curl -H $CRUMB -X POST "http://$username:$token@localhost:8080/credentials/store/system/domain/_/createCredentials" \
---data-urlencode 'json={
-  "": "0",
-  "credentials": {
-    "scope": "GLOBAL",
-    "id": "git-token-'$repo_name'",
-    "username": '$git_username',
-    "password": "'$git_token'",
-    "description": "git_credentials",
-    "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-  }
-}'
+# curl -H $CRUMB -X POST "http://$username:$token@localhost:8080/credentials/store/system/domain/_/createCredentials" \
+# --data-urlencode 'json={
+#   "": "0",
+#   "credentials": {
+#     "scope": "GLOBAL",
+#     "id": "git-token-'$repo_name'",
+#     "username": '$git_username',
+#     "password": "'$git_token'",
+#     "description": "git_credentials",
+#     "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+#   }
+# }'
+
+echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
+  <scope>GLOBAL</scope>
+  <id>git_pat_$repo_name</id>
+  <username>$git_username</username>
+  <password>$git_token</password>
+  <description>git_pat_for_$repo_name</description>
+</com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" \
+ | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
+   create-credentials-by-xml system::system::jenkins _
