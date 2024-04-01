@@ -7,6 +7,7 @@ email-ext:latest
 git:latest
 github:latest
 job-dsl:latest
+parametrized:trigger
 envinject:latest
 pipeline-utility-steps:latest
 github-branch-source:latest
