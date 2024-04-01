@@ -15,7 +15,7 @@ class Job_Configurator:
 
         script_path = "./scripts/job_configuration/create_job.sh"
         try:
-            command = ["/bin/sudo", script_path]
+            command = ["/bin/sudo", script_path, git_repo.get_repo_name()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
