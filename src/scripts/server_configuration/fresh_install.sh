@@ -4,7 +4,7 @@ username=$1
 password=$2
 
 if [ $(which jenkins) ]; then
-	echo "Jenkins already exists on this device."
+	echo "Jenkins already exists on this machine."
 	exit 1
 fi
 
@@ -22,7 +22,7 @@ apt install jenkins
 
 # Disable the setup wizard
 # java -Djenkins.install.runSetupWizard=false -jar /usr/share/java/jenkins.war 
-sed -i 's/JAVA_ARGS="-Djava.awt.headless=true"/JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"/' /etc/default/jenkins
+# sed -i 's/JAVA_ARGS="-Djava.awt.headless=true"/JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false  -Dpermissive-script-security.enabled=true"/' /etc/default/jenkins
 
 # Enable service
 systemctl daemon-reload

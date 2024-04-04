@@ -8,6 +8,14 @@ repo=$1
 
 repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get only repo name from repo link
 
+if [ ! -d /var/lib/jenkins/workspace ]; then
+  mkdir /var/lib/jenkins/workspace
+fi
+
+if [ ! -d /var/lib/jenkins/workspace/seeder ]; then
+  mkdir /var/lib/jenkins/workspace/seeder
+fi
+
 if [ ! -d /var/lib/jenkins/workspace/seeder/$repo_name ]; then
   mkdir /var/lib/jenkins/workspace/seeder/$repo_name
 fi
