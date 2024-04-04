@@ -42,13 +42,15 @@ class Configurator:
         self.install_plugins()
 
     def install_plugins(self):
+        print("INSTALL PLUGINS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         script_path = "./scripts/server_configuration/install_plugins.sh"
 
         try:
-            command = ["bash", script_path, self.__current_server.get_username(), self.__current_server.get_token(), self.__current_server.get_jnlp_file(), self.__current_server.get_url()]
+            command = ["/usr/bin/sudo", script_path, self.__current_server.get_username(), self.__current_server.get_token(), self.__current_server.get_jnlp_file(), self.__current_server.get_url()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
+            print(output)
             # token = output.split(":")[1]
             # return token
         except subprocess.CalledProcessError as e:
