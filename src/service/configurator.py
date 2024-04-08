@@ -40,9 +40,9 @@ class Configurator:
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
             # print([str(x) for x in self.__instances.get_all()])
         self.install_plugins()
+        self.disable_security(username, token, "http://localhost:8080")
 
     def install_plugins(self):
-        print("INSTALL PLUGINS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         script_path = "./scripts/server_configuration/install_plugins.sh"
 
         try:
@@ -56,6 +56,20 @@ class Configurator:
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
+        
+    def disable_security(self, username, token, url):
+        script_path = "./scripts/server_configuration/disable_security.sh"
+
+        try:
+            command = ["/usr/bin/sudo", script_path, username, token, url]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()
+            print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
+
 
     def enable_proxy(self):
         script_path = "./scripts/server_configuration/enable_proxy.sh"
