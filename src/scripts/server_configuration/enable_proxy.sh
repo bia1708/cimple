@@ -12,19 +12,19 @@ echo "tunnel:$tunnel"
 
 # Create systemd service for smee webhook forwarding
 service_script=$'
-[Unit]\n
-Description=Smee Proxy\n
-After=network.target jenkins.service\n
-StartLimitIntervalSec=0\n
-\n
-[Service]\n
-Type=simple\n
-Restart=always\n
-RestartSec=1\n
-User=jenkins\n
-ExecStart=smee --url $tunnel --path /github-webhook/ --port 8080\n
-\n
-[Install]\n
+[Unit]
+Description=Smee Proxy
+After=network.target jenkins.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=jenkins
+ExecStart=smee --url $tunnel --path /github-webhook/ --port 8080
+
+[Install]
 WantedBy=multi-user.target'
 
 echo "$service_script" > /etc/systemd/system/smee.service
