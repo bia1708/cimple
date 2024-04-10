@@ -51,9 +51,7 @@
     - string:
         name: REPO
     - string:
-        name: GIT_USERNAME
-    - string:
-        name: GIT_PAT
+        name: REPO_NAME
     dsl: |
         pipeline {{
             agent any
@@ -61,8 +59,8 @@
             stages {{
                 stage('Generate Repo Job') {{
                     steps {{
-                        jobDsl targets:"${{REPO}}/generate_job.groovy",
-                            additionalParameters: [REPO : env.REPO, GIT_USERNAME : env.GIT_USERNAME, GIT_PAT : env.GIT_PAT]
+                        jobDsl targets:"${{REPO_NAME}}/generate_job.groovy",
+                            additionalParameters: [REPO : env.REPO, REPO_NAME : env.REPO_NAME]
                     }}
                 }}
             }}

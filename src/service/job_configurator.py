@@ -15,7 +15,7 @@ class Job_Configurator:
 
         script_path = "./scripts/job_configuration/create_job.sh"
         try:
-            command = ["/bin/sudo", script_path, git_repo.get_repo_name()]
+            command = ["/bin/sudo", script_path, git_repo.get_repo_name(), self.__server.get_jnlp_file(), self.__server.get_url(), self.__server.get_username(), self.__server.get_token()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
@@ -27,7 +27,6 @@ class Job_Configurator:
     def init_repo(self, repo_name, git_username, git_pat):
         git_repo = Git_Repo(repo_name, git_username, git_pat)
         self.init_gh(git_pat, git_username, repo_name, self.__server.get_username(), self.__server.get_token())
-        #TODO: add git credentials in Jenkins as well, to be used later
         # self.setup_webhooks(git_repo)
         job = self.create_job(git_repo)
         # self.__jobs.add(job)
