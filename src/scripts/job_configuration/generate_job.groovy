@@ -1,7 +1,11 @@
 
-pipelineJob("${REPO}"){
+pipelineJob("${REPO_NAME}"){
     definition {
         cps {
+            sandbox()
+            environmentVariables {
+                propertiesFile("properties_file.props")
+            }
             script('''
                 pipeline {
                     agent any
