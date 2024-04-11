@@ -59,7 +59,7 @@
             stages {{
                 stage('Generate Repo Job') {{
                     steps {{
-                        jobDsl targets:"${{REPO_NAME}}/generate_job.groovy",
+                        jobDsl targets:"generate_job.groovy",
                             additionalParameters: [REPO : env.REPO, REPO_NAME : env.REPO_NAME]
                     }}
                 }}
