@@ -13,3 +13,5 @@ if __name__ == '__main__':
     job_config = Job_Configurator(config.get_current_server())
     job_config.init_repo("https://github.com/bia1708/cimple.git", "bia1708", "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")
 
+#TODO: PUT APT DEPS IN MAKEFILE
+#TODO: ADD pip DEPS IN REQ.TXT

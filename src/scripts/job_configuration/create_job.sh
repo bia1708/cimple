@@ -23,8 +23,13 @@ if [ ! -d /var/lib/jenkins/workspace/$repo_name ]; then
   chown -R jenkins:jenkins /var/lib/jenkins/workspace/$repo_name
 fi
 
-cp scripts/job_configuration/generate_job.groovy /var/lib/jenkins/workspace/seeder
+language=$(cat ../artifacts/properties_file.props | grep "LANGUAGE" | awk -F'=' '{ print $2 }' | sed 's/"//g')
+if [ ${language,,} == "python" ]; then
+  cp scripts/job_configuration/generate_job_python.groovy /var/lib/jenkins/workspace/seeder/generate_job.groovy
+fi
 cp ../artifacts/properties_file.props /var/lib/jenkins/workspace/$repo_name  # Maybe I won't need this one anymore
+chown -R jenkins:jenkins /var/lib/jenkins/workspace/$repo_name
+chown -R jenkins:jenkins /var/lib/jenkins/workspace/seeder
 
 existing_jobs=$(java -jar $jenkins_cli -auth $username:$pat -s $url list-jobs)
 
@@ -33,7 +38,7 @@ if [ "$(echo $existing_jobs | grep "seeder")" == "" ]; then
 fi
 
 # Run seeder to generate job
-java -jar $jenkins_cli -auth $username:$pat -s $url build seeder -p REPO=$repo -p REPO_NAME=$repo_name
+java -jar $jenkins_cli -auth $username:$pat -s $url build seeder -p REPO=$repo -p REPO_NAME=$repo_name -f
 
-# Fisrt run of the job
-java -jar $jenkins_cli -auth $username:$pat -s $url build $repo_name
+# First run of the job
+java -jar $jenkins_cli -auth $username:$pat -s $url build $repo_name -f
