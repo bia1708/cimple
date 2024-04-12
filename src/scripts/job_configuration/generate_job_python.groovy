@@ -35,9 +35,17 @@ pipeline {
         stage("Build") {
             steps {
                 script {
-                    if (env.REQUIREMENTS == "true" ) {
-                        sh 'pip install -r requirements.txt'
-                    }
+                    sh \'\'\'
+                        #!/bin/bash
+                        if [ "$(find . -name 'Makefile*')" != "" ]; then
+                            make install
+                        elif [ "${REQUIREMENTS}" == "true" ]; then
+                            pip install -r requirements.txt
+                        fi
+                    \'\'\'
+                    // if (env.REQUIREMENTS == "true" ) {
+                    //     sh 'pip install -r requirements.txt'
+                    // }
                 }
             }
         }
