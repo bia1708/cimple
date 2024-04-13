@@ -14,6 +14,7 @@ matrix-auth:latest
 permissive-script-security:latest
 pipeline-github-lib:latest
 pipeline-stage-view:latest
+shiningpanda:latest
 ssh-slaves:latest
 script-security:latest
 timestamper:latest

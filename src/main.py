@@ -1,6 +1,7 @@
 from service.configurator import Configurator
 from service.job_configurator import Job_Configurator
-
+# from tests import *
+import unittest
 
 if __name__ == '__main__':
     config = Configurator()

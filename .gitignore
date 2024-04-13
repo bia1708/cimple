@@ -3,3 +3,4 @@ wget-log*
 __pycache__
 artifacts/*
 package*
+*.html

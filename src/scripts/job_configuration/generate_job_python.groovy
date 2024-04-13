@@ -49,6 +49,14 @@ pipeline {
                 }
             }
         }
+
+        stage('Test') {
+            steps {
+                script {
+                    sh 'pytest  --html=pytest_report.html --self-contained-html'
+                }
+            }
+        }
     }
 }''')
         }

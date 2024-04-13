@@ -27,6 +27,10 @@ language=$(cat ../artifacts/properties_file.props | grep "LANGUAGE" | awk -F'=' 
 if [ ${language,,} == "python" ]; then
   cp scripts/job_configuration/generate_job_python.groovy /var/lib/jenkins/workspace/seeder/generate_job.groovy
 fi
+
+# Remove this in the end
+cp scripts/job_configuration/generate_job_python.groovy /var/lib/jenkins/workspace/seeder/generate_job.groovy
+
 cp ../artifacts/properties_file.props /var/lib/jenkins/workspace/$repo_name  # Maybe I won't need this one anymore
 chown -R jenkins:jenkins /var/lib/jenkins/workspace/$repo_name
 chown -R jenkins:jenkins /var/lib/jenkins/workspace/seeder
