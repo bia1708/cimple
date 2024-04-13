@@ -18,6 +18,8 @@ pipeline {
                     env.REPO_NAME = props["REPO_NAME"]
                     env.REQUIREMENTS = props["REQUIREMENTS"]
                     env.INSTRUCTIONS = props["INSTRUCTIONS"]
+                    sh 'export PATH="$PATH:${WORKSPACE}/.local/lib/python$(python3 --version | awk "{print $2}" | cut -d "." -f 1,2)/site-packages"'
+                    // env.PATH = "${env.PATH}:" + "${env.WORKSPACE}/.local/lib/python*"
                 }
             }
         }
