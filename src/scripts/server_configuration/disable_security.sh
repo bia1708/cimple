@@ -14,9 +14,7 @@ url=$3
 
 # Disable script security and setup wizard
 systemctl stop jenkins
-sed -i 's/Environment="JAVA_OPTS=-Djava.awt.headless=true"/Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"/' /lib/systemd/system/jenkins.service
-sed -i 's,<useScriptSecurity>true</useScriptSecurity>,<useScriptSecurity>false</useScriptSecurity>,' /var/lib/jenkins/javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration.xml
-
+sed -i 's/Environment="JAVA_OPTS=-Djava.awt.headless=true"/Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dpermissive-script-security.enabled=no_security"/' /lib/systemd/system/jenkins.service
 # curl --user "$username:$pat" -d "script=security.groovy" $url/script
 
 # echo "import javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration
