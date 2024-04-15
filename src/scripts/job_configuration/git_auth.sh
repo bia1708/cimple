@@ -42,6 +42,7 @@ echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
   <username>$git_username</username>
   <password>$git_token</password>
   <description>git_pat_for_$repo_name</description>
+  <usernameSecret>false</usernameSecret>
 </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" \
  | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
    create-credentials-by-xml system::system::jenkins _

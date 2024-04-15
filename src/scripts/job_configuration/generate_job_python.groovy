@@ -105,6 +105,7 @@ pipeline {
                     \'\'\'
                     def props = readProperties file: 'properties_file.properties'
                     env.NEW_GIST = props.GIST_PATH
+                    echo "${REPO}"
                     setCommitBuildStatus("${NEW_GIST}", env.GIT_COMMIT)
                 }
             }
