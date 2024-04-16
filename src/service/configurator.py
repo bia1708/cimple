@@ -1,8 +1,8 @@
 import requests
 import os
 import subprocess
-from domain.server import Server
-from repository.persistent_repository import PersistentRepository
+from src.domain.server import Server
+from src.repository.persistent_repository import PersistentRepository
 
 class Configurator:
     def __init__(self):
@@ -123,3 +123,6 @@ class Configurator:
 
     def get_current_server(self):
         return self.__current_server
+
+    def mock_method(self):
+        print("Mock method")
