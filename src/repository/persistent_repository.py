@@ -3,6 +3,8 @@ import os
 
 class PersistentRepository():
     def __init__(self, filename):
+        if not os.path.exists("../artifacts/"):
+            os.makedirs("../artifacts/")
         self.__filename = filename
         if not os.path.isfile(self.__filename):
             open(self.__filename, 'wb')
