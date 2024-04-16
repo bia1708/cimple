@@ -7,6 +7,7 @@ pipelineJob("${REPO_NAME}"){
             sandbox()
             script('''
 void setCommitBuildStatus(String backrefLink, String commitSha) {
+    echo env.REPO
     step([
         $class: "GitHubCommitStatusSetter",
         reposSource: [$class: "ManuallyEnteredRepositorySource", url: "${env.REPO}"],
@@ -30,19 +31,20 @@ pipeline {
                     env.REPO_NAME = props["REPO_NAME"]
                     env.REQUIREMENTS = props["REQUIREMENTS"]
                     env.INSTRUCTIONS = props["INSTRUCTIONS"]
-                    sh 'export PATH="$PATH:${WORKSPACE}/.local/lib/python$(python3 --version | awk "{print $2}" | cut -d "." -f 1,2)/site-packages"'
-                    // env.PATH = "${env.PATH}:" + "${env.WORKSPACE}/.local/lib/python*"
                 }
             }
         }
 
         stage("Checkout") {
             steps {
-                checkout([
-                    $class: 'GitSCM', branches: [[name: '*/main']],
-                    extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "${WORKSPACE}"],],
-                    userRemoteConfigs: [[credentialsId: "git_pat_${REPO_NAME}", url: "$REPO"]]
-                ])
+                script {
+                    def scmVars = checkout([
+                        $class: 'GitSCM', branches: [[name: '*/main']],
+                        extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "${WORKSPACE}"],],
+                        userRemoteConfigs: [[credentialsId: "git_pat_${REPO_NAME}", url: "$REPO"]]
+                    ])
+                    env.GIT_COMMIT = scmVars.GIT_COMMIT
+                }
             }
         }
 
@@ -101,11 +103,16 @@ pipeline {
                         export GIST_PATH=$(gh gist create -d "Build $BUILD_TAG console output" output.md | grep -o 'https://[^\"]*')
 
                         # Add GIST_PATH to the list of Environmental Variables
-                        echo "GIST_PATH=$GIST_PATH" >> properties_file.properties
+                        if [ "$(cat properties_file.props | grep GIST_PATH)" = "" ]; then
+                            echo "GIST_PATH=$GIST_PATH" >> properties_file.props
+                        else
+                            sed -i "s,GIST_PATH=.*,GIST_PATH=$GIST_PATH," properties_file.props
+                        fi
+                        cat properties_file.props
                     \'\'\'
-                    def props = readProperties file: 'properties_file.properties'
+                    def props = readProperties file: 'properties_file.props'
                     env.NEW_GIST = props.GIST_PATH
-                    echo "${REPO}"
+                    echo "${NEW_GIST}, ${GIT_COMMIT}, ${REPO}"
                     setCommitBuildStatus("${NEW_GIST}", env.GIT_COMMIT)
                 }
             }
