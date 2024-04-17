@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 from src.service.configurator import Configurator
 from src.ui.components.button import Button
 from src.ui.views.install_form import InstallFormView
+from src.ui.views.install_progress import InstallProgressView
 
 
 class MainWindow(QMainWindow):
@@ -40,9 +41,11 @@ class MainWindow(QMainWindow):
         # self.animate_transition(install_form_view)
         # self._stacked_widget.setCurrentWidget(install_form_view)
 
-    def switch_to_install_progress(self, username, password):
-        print(username, password)
-        self.__configurator.perform_fresh_install(username, password)
+    def switch_to_install_progress(self, username, password, enable_proxy):
+        print(username, password, enable_proxy)
+        install_progress_view = InstallProgressView()
+        self._main_window.setCentralWidget(install_progress_view)
+        # self.__configurator.perform_fresh_install(username, password)
 
     def startup_ui(self):
         label_widget = QWidget(self._main_window)
