@@ -16,3 +16,10 @@ class Button(QPushButton):
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
         self.setStyleSheet("background-color: #59981A; color: #ECF87F; border-radius: 10px;")
+
+    def setEnabled(self, enabled):
+        super().setEnabled(enabled)
+        if enabled:
+            self.setStyleSheet("background-color: #59981A; color: #ECF87F; border-radius: 10px;")
+        else:
+            self.setStyleSheet("background-color: #B0B0B0; color: #808080; border-radius: 10px;")
