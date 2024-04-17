@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QCheckBox
 
 from src.ui.components.LineEdit import LineEdit
 from src.ui.components.button import Button
@@ -24,6 +24,8 @@ class InstallFormView(QWidget):
         self._password_line_edit.setEchoMode(QLineEdit.EchoMode.Password)
         self._password_line_edit.textChanged.connect(self.check_input)
 
+        self._checkbox = QCheckBox("Enable Reverse Proxy Service")
+
         # Next button which sends a signal to the main window object to perform the fresh install
         self._next_button = Button("Next")
         self._next_button.setEnabled(False)
@@ -33,6 +35,7 @@ class InstallFormView(QWidget):
         layout = QFormLayout()
         layout.addRow(self._username_label, self._username_line_edit)
         layout.addRow(self._password_label, self._password_line_edit)
+        layout.addWidget(self._checkbox)
         layout.addWidget(self._next_button)
         self._form_widget.setLayout(layout)
 
@@ -47,7 +50,7 @@ class InstallFormView(QWidget):
         self.setLayout(outer_layout)
 
     # Signal which send the username and password to MainWindow
-    form_signal = Signal(str, str)
+    form_signal = Signal(str, str, bool)
 
     def check_input(self):
         username = self._username_line_edit.text().strip()
@@ -56,4 +59,4 @@ class InstallFormView(QWidget):
         self._next_button.setEnabled(bool(username) and bool(password))
 
     def next_button_action(self):
-        self.form_signal.emit(self._username_line_edit.text(), self._password_line_edit.text())
+        self.form_signal.emit(self._username_line_edit.text(), self._password_line_edit.text(), self._checkbox.isChecked())
