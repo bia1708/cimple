@@ -14,4 +14,6 @@ do
   java -jar $jnlp -s $url -auth $username:$pat -webSocket install-plugin $line -deploy </dev/null
 done < "$file"
 
+echo $jnlp $url $username $pat
 java -jar $jnlp -s $url -auth $username:$pat restart
+echo "hereeee"

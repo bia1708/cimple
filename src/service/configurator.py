@@ -29,16 +29,16 @@ class Configurator(QObject):
 
         try:
             command = ["/usr/bin/sudo", script_path, username, password]
-            #result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
             self.install_signal.emit(20)
-            #output = result.stdout.strip()
-            #exit_code = result.returncode
+            output = result.stdout.strip()
+            exit_code = result.returncode
 
-            #print(output, exit_code)
+            print(output, exit_code)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
-        exit_code = 0
+        #exit_code = 0
         if exit_code == 0:
             token = self.get_pat(username, password, "http://localhost:8080")
             self.install_signal.emit(25)
