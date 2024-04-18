@@ -5,12 +5,12 @@ from domain.server import Server
 from repository.persistent_repository import PersistentRepository
 from PySide6.QtCore import QObject, Signal
 
+
 class Configurator(QObject):
     def __init__(self):
         super().__init__()
         self.__instances = PersistentRepository("../artifacts/data.bin")
         self.__current_server = self.__instances.get_current()
-        self.install_signal.connect(self.mock_function)
 
     def connect_to_existing_jenkins(self, username, password, jenkins_url):
         for instance in self.__instances.get_all():
@@ -23,14 +23,16 @@ class Configurator(QObject):
         # print("JNLP FILE: " + jnlp_file)
         self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
 
-    install_signal = Signal(int)
+    install_signal = Signal(int, str)
+
     def perform_fresh_install(self, username, password):
         script_path = "./scripts/server_configuration/fresh_install.sh"
 
         try:
+            self.install_signal.emit(0, "Installing Jenkins...")
             command = ["/usr/bin/sudo", script_path, username, password]
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
-            self.install_signal.emit(20)
+            self.install_signal.emit(20, "Installed Jenkins successfully\nGenerating personal access token...")
             output = result.stdout.strip()
             exit_code = result.returncode
 
@@ -38,18 +40,18 @@ class Configurator(QObject):
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
-        #exit_code = 0
+
         if exit_code == 0:
             token = self.get_pat(username, password, "http://localhost:8080")
-            self.install_signal.emit(25)
+            self.install_signal.emit(25, "Generated personal access token\nInstalling plugins...")
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
-            # print([str(x) for x in self.__instances.get_all()])
-        self.install_plugins()
-        self.install_signal.emit(90)
-        self.disable_security(username, token, "http://localhost:8080")
-        self.install_signal.emit(100)
-    def mock_function(self, x):
-        print(x)
+            self.install_plugins()
+            self.install_signal.emit(90, "Installed plugins successfully\nConfiguring setup...")
+            self.disable_security(username, token, "http://localhost:8080")
+            self.install_signal.emit(100, "Setup complete")
+        else:
+            self.install_signal.emit(-1, "Failed to install Jenkins")
+
     def install_plugins(self):
         script_path = "./scripts/server_configuration/install_plugins.sh"
 
@@ -59,10 +61,9 @@ class Configurator(QObject):
 
             output = result.stderr.strip()
             print(output)
-            # token = output.split(":")[1]
-            # return token
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
+            self.install_signal.emit(-1, "Failed to install plugins")
             return None, e.returncode
         
     def disable_security(self, username, token, url):
@@ -76,8 +77,8 @@ class Configurator(QObject):
             print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
+            self.install_signal.emit(-1, "Failed to configure Jenkins")
             return None, e.returncode
-
 
     def enable_proxy(self):
         script_path = "./scripts/server_configuration/enable_proxy.sh"
@@ -104,6 +105,7 @@ class Configurator(QObject):
             return token
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
+            self.install_signal.emit(-1, "Failed to generate personal access token")
             return None, e.returncode
 
     def get_jnlp(self, username, password, url):
@@ -118,6 +120,7 @@ class Configurator(QObject):
             return jnlp_file
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
+            self.install_signal.emit(-1, "Failed to get Jenkins jar")
             return None, e.returncode
 
     def add_jenkins_instance(self, url, username, token, jnlp_file):
@@ -131,6 +134,3 @@ class Configurator(QObject):
 
     def get_current_server(self):
         return self.__current_server
-
-    def mock_method(self):
-        print("Mock method")
