@@ -43,14 +43,14 @@ class InstallProgressView(QWidget):
         self.worker.start()
 
     def update_progress(self, progress, message):
-        if progress != -1 and progress < 100:
+        if progress != -1 :
             self.progressBar.setValue(progress)
             label = QLabel(message)
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             label.setWordWrap(True)
             self.layout().addWidget(label)
-        elif progress == 100:
-            self.worker.terminate()
+            if progress == 100:
+                self.worker.terminate()
         else:
             self.worker.terminate()
             message_box = QMessageBox()
