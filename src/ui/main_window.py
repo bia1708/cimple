@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self._main_window = QMainWindow()
         self._main_window.setWindowTitle('cimple')
         self._main_window.resize(600, 400)
-        self._main_window.setWindowIcon(QIcon('ui/components/icon.png'))
+        self._main_window.setWindowIcon(QIcon("ui/resources/icon.png"))
         # TODO: Maybe transitions?
         # self._main_layout = QVBoxLayout()
         # self._stacked_widget = QStackedWidget()

@@ -1,11 +1,10 @@
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QApplication
 
 from service.configurator import Configurator
 from service.job_configurator import Job_Configurator
-# from tests import *
-import unittest
 
+import ui.resources.rc_icons
 from ui.main_window import MainWindow
 
 if __name__ == '__main__':
@@ -23,7 +22,7 @@ if __name__ == '__main__':
 
     window = MainWindow()
 
-    app.setWindowIcon(QIcon("ui/components/cimple.ico"))
+    app.setWindowIcon(QIcon("ui/resources/cimple.ico"))
 
     app.exec()
 
