@@ -10,10 +10,10 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QLabel
 )
 
-from src.service.configurator import Configurator
-from src.ui.components.button import Button
-from src.ui.views.install_form import InstallFormView
-from src.ui.views.install_progress import InstallProgressView
+from service.configurator import Configurator
+from ui.components.button import Button
+from ui.views.install_form import InstallFormView
+from ui.views.install_progress import InstallProgressView
 
 
 class MainWindow(QMainWindow):
@@ -43,9 +43,10 @@ class MainWindow(QMainWindow):
 
     def switch_to_install_progress(self, username, password, enable_proxy):
         print(username, password, enable_proxy)
-        install_progress_view = InstallProgressView()
+        install_progress_view = InstallProgressView(self.__configurator,
+                                                    username, password)
         self._main_window.setCentralWidget(install_progress_view)
-        # self.__configurator.perform_fresh_install(username, password)
+        #self.__configurator.perform_fresh_install(username, password)
 
     def startup_ui(self):
         label_widget = QWidget(self._main_window)
