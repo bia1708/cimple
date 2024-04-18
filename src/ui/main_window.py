@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self._main_window = QMainWindow()
         self._main_window.setWindowTitle('cimple')
         self._main_window.resize(600, 400)
-        self._main_window.setWindowIcon(QIcon('components/icon.png'))
+        self._main_window.setWindowIcon(QIcon('ui/components/icon.png'))
         # TODO: Maybe transitions?
         # self._main_layout = QVBoxLayout()
         # self._stacked_widget = QStackedWidget()
@@ -43,8 +43,7 @@ class MainWindow(QMainWindow):
 
     def switch_to_install_progress(self, username, password, enable_proxy):
         print(username, password, enable_proxy)
-        install_progress_view = InstallProgressView(self.__configurator,
-                                                    username, password)
+        install_progress_view = InstallProgressView(self.__configurator, username, password)
         self._main_window.setCentralWidget(install_progress_view)
         #self.__configurator.perform_fresh_install(username, password)
 
@@ -70,7 +69,7 @@ class MainWindow(QMainWindow):
         subheading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subheading_label.setStyleSheet('font-family: Inria Sans; font-size: 18px; text-align: center;')
         subheading_label.setWordWrap(True)
-        subheading_label.setText("If you don’t have Jenkins setup on your system, choose fresh installation." + \
+        subheading_label.setText("If you don't have Jenkins setup on your system, choose fresh installation." + \
                                  " Or, you can connect to an existing instance and start automating your workflows instantly!")
         label_widget.layout().addWidget(subheading_label)
 

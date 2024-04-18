@@ -20,9 +20,10 @@ if __name__ == '__main__':
     # job_config.init_repo("https://github.com/bia1708/cimple.git", "bia1708", "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")
     app = QApplication()
     app.setApplicationName('cimple')
-    app.setWindowIcon(QIcon("ui/components/icon.png"))
 
     window = MainWindow()
+
+    app.setWindowIcon(QIcon("ui/components/cimple.ico"))
 
     app.exec()
 
