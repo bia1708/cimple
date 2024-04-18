@@ -1,13 +1,16 @@
 import requests
 import os
 import subprocess
-from src.domain.server import Server
-from src.repository.persistent_repository import PersistentRepository
+from domain.server import Server
+from repository.persistent_repository import PersistentRepository
+from PySide6.QtCore import QObject, Signal
 
-class Configurator:
+class Configurator(QObject):
     def __init__(self):
+        super().__init__()
         self.__instances = PersistentRepository("../artifacts/data.bin")
         self.__current_server = self.__instances.get_current()
+        self.install_signal.connect(self.mock_function)
 
     def connect_to_existing_jenkins(self, username, password, jenkins_url):
         for instance in self.__instances.get_all():
@@ -20,28 +23,33 @@ class Configurator:
         # print("JNLP FILE: " + jnlp_file)
         self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
 
+    install_signal = Signal(int)
     def perform_fresh_install(self, username, password):
         script_path = "./scripts/server_configuration/fresh_install.sh"
 
         try:
             command = ["/usr/bin/sudo", script_path, username, password]
-            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+            #result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+            self.install_signal.emit(20)
+            #output = result.stdout.strip()
+            #exit_code = result.returncode
 
-            output = result.stdout.strip()
-            exit_code = result.returncode
-
-            print(output, exit_code)
+            #print(output, exit_code)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
-
+        exit_code = 0
         if exit_code == 0:
             token = self.get_pat(username, password, "http://localhost:8080")
+            self.install_signal.emit(25)
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
             # print([str(x) for x in self.__instances.get_all()])
         self.install_plugins()
+        self.install_signal.emit(90)
         self.disable_security(username, token, "http://localhost:8080")
-
+        self.install_signal.emit(100)
+    def mock_function(self, x):
+        print(x)
     def install_plugins(self):
         script_path = "./scripts/server_configuration/install_plugins.sh"
 

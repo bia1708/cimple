@@ -6,7 +6,7 @@ from service.job_configurator import Job_Configurator
 # from tests import *
 import unittest
 
-from src.ui.main_window import MainWindow
+from ui.main_window import MainWindow
 
 if __name__ == '__main__':
     # config = Configurator()
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # config.enable_proxy()
     # job_config = Job_Configurator(config.get_current_server())
     # job_config.init_repo("https://github.com/bia1708/cimple.git", "bia1708", "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")
-    app = QApplication([])
+    app = QApplication()
     app.setApplicationName('cimple')
     app.setWindowIcon(QIcon("ui/components/icon.png"))
 
