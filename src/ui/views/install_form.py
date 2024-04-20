@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QCheckBox
 
-from ui.components.LineEdit import LineEdit
+from ui.components.line_edit import LineEdit
 from ui.components.button import Button
 
 

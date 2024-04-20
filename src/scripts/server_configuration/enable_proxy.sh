@@ -11,8 +11,7 @@ tunnel=$(curl -X GET https://smee.io/new | awk '{print $5}')
 echo "tunnel:$tunnel"
 
 # Create systemd service for smee webhook forwarding
-service_script=$"
-[Unit]
+service_script=$"[Unit]
 Description=Smee Proxy
 After=network.target jenkins.service
 StartLimitIntervalSec=0
