@@ -15,6 +15,7 @@ class ProgressBar(QProgressBar):
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 background-color: #f0f0f0;
+                color: black
                 text-align: center;
             }
         

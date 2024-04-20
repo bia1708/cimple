@@ -41,11 +41,11 @@ class MainWindow(QMainWindow):
         # self.animate_transition(install_form_view)
         # self._stacked_widget.setCurrentWidget(install_form_view)
 
-    def switch_to_install_progress(self, username, password, enable_proxy):
-        print(username, password, enable_proxy)
-        install_progress_view = InstallProgressView(self.__configurator, username, password)
+    def switch_to_install_progress(self, username, password, proxy):
+        print(username, password, proxy)
+        install_progress_view = InstallProgressView(self.__configurator, username, password, proxy)
         self._main_window.setCentralWidget(install_progress_view)
-        #self.__configurator.perform_fresh_install(username, password)
+        install_progress_view.error_signal.connect(lambda: self.startup_ui())
 
     def startup_ui(self):
         label_widget = QWidget(self._main_window)
@@ -56,7 +56,6 @@ class MainWindow(QMainWindow):
         layout.setSpacing(1)
         layout.setContentsMargins(0, 0, 0, 0)
         label_widget.setLayout(layout)  # Assign the layout to the widget
-        # label_widget.setLayout(QVBoxLayout())
 
         heading_label = QLabel(self._main_window)
         heading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -97,7 +96,7 @@ class MainWindow(QMainWindow):
     #     animation.start(QPropertyAnimation.DeletionPolicy.DeleteWhenStopped)  # Start the animation and delete it when stopped
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    gui = MainWindow()
-    sys.exit(app.exec())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     gui = MainWindow()
+#     sys.exit(app.exec())

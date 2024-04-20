@@ -25,14 +25,13 @@ class Configurator(QObject):
 
     install_signal = Signal(int, str)
 
-    def perform_fresh_install(self, username, password):
+    def perform_fresh_install(self, username, password, proxy):
         script_path = "./scripts/server_configuration/fresh_install.sh"
 
         try:
-            self.install_signal.emit(0, "Installing Jenkins...")
+            self.install_signal.emit(0, "Installing Jenkins...\n")
             command = ["/usr/bin/sudo", script_path, username, password]
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
-            self.install_signal.emit(20, "Installed Jenkins successfully\nGenerating personal access token...")
             output = result.stdout.strip()
             exit_code = result.returncode
 
@@ -42,13 +41,18 @@ class Configurator(QObject):
             return None, e.returncode
 
         if exit_code == 0:
+            self.install_signal.emit(20, "Installed Jenkins successfully\nGenerating personal access token...\n")
             token = self.get_pat(username, password, "http://localhost:8080")
-            self.install_signal.emit(25, "Generated personal access token\nInstalling plugins...")
+            self.install_signal.emit(25, "Generated personal access token\nInstalling plugins...\n")
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
             self.install_plugins()
-            self.install_signal.emit(90, "Installed plugins successfully\nConfiguring setup...")
+            self.install_signal.emit(90, "Installed plugins successfully\nConfiguring setup...\n")
             self.disable_security(username, token, "http://localhost:8080")
-            self.install_signal.emit(100, "Setup complete")
+            self.install_signal.emit(100, "Setup complete\n")
+            print(proxy)
+            if proxy is True:
+                print("hereeee")
+                self.enable_proxy()
         else:
             self.install_signal.emit(-1, "Failed to install Jenkins")
 
@@ -82,6 +86,7 @@ class Configurator(QObject):
 
     def enable_proxy(self):
         script_path = "./scripts/server_configuration/enable_proxy.sh"
+        self.install_signal.emit(0, "Setting up proxy...\n")
 
         try:
             command = ["/usr/bin/sudo", script_path]
@@ -92,6 +97,8 @@ class Configurator(QObject):
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
+        print("daaa")
+        self.install_signal.emit(100, "Proxy setup complete")
 
     def get_pat(self, username, password, url):
         script_path = "./scripts/server_configuration/generate_pat.sh"
