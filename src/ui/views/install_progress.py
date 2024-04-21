@@ -25,6 +25,8 @@ class InstallProgressView(QWidget):
         self._password = password
         self._proxy = proxy
 
+        self._message_box = MessageBox()
+
         self._heading_label = QLabel("Configuring Jenkins Setup")
         self._heading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._heading_label.setStyleSheet('font-family: Inria Sans; font-size: 22px; text-align: center;')
@@ -53,9 +55,10 @@ class InstallProgressView(QWidget):
         self.worker.start()
 
     error_signal = Signal(str)
+    change_view_signal = Signal(str)
 
     def update_progress(self, progress, message):
-        if progress != -1 :
+        if progress != -1:
             self.progress_bar.setValue(progress)
             text = self.info_label.text() + message
             self.info_label.setText(text)
@@ -63,13 +66,20 @@ class InstallProgressView(QWidget):
                 self._heading_label.setText("Configuring Proxy Service")
             if progress == 100 and self._proxy is not True:
                 self.worker.terminate()
+                self._message_box.setText("Jenkins setup complete.\nYou can view your Jenkins instance at " +
+                                          "http://localhost:8080/\nClick OK to proceed.")
+                self._message_box.buttonClicked.connect(lambda: self.change_view_signal.emit("OK"))
+                self._message_box.exec()
             elif progress == 100 and message == "Proxy setup complete":
                 self.worker.terminate()
+                self._message_box.setText("Setup complete.\nYou can view your Jenkins instance at " +
+                                          "http://localhost:8080/\nClick OK to proceed.")
+                self._message_box.buttonClicked.connect(lambda: self.change_view_signal.emit("OK"))
+                self._message_box.exec()
         else:
             self.worker.terminate()
-            message_box = MessageBox()
-            message_box.setIcon(QMessageBox.Critical)
-            message_box.setText(message)
-            message_box.setWindowTitle("Error")
-            message_box.buttonClicked.connect(lambda: self.error_signal.emit(message))
-            message_box.exec()
+            self._message_box.setIcon(QMessageBox.Icon.Critical)
+            self._message_box.setText(message)
+            self._message_box.setWindowTitle("Error")
+            self._message_box.buttonClicked.connect(lambda: self.error_signal.emit(message))
+            self._message_box.exec()

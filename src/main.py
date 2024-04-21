@@ -4,7 +4,6 @@ from PySide6.QtWidgets import QApplication
 from service.configurator import Configurator
 from service.job_configurator import Job_Configurator
 
-import ui.resources.rc_icons
 from ui.main_window import MainWindow
 
 if __name__ == '__main__':

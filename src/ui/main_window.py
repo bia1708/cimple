@@ -14,6 +14,7 @@ from service.configurator import Configurator
 from ui.components.button import Button
 from ui.views.install_form import InstallFormView
 from ui.views.install_progress import InstallProgressView
+from ui.views.list_view import ListView
 
 
 class MainWindow(QMainWindow):
@@ -46,6 +47,11 @@ class MainWindow(QMainWindow):
         install_progress_view = InstallProgressView(self.__configurator, username, password, proxy)
         self._main_window.setCentralWidget(install_progress_view)
         install_progress_view.error_signal.connect(lambda: self.startup_ui())
+        install_progress_view.change_view_signal.connect(lambda: self.switch_to_list_view)
+
+    def switch_to_list_view(self):
+        list_view = ListView()
+        self._main_window.setCentralWidget(list_view)
 
     def startup_ui(self):
         label_widget = QWidget(self._main_window)

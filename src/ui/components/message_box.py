@@ -6,7 +6,6 @@ class MessageBox(QMessageBox):
         super(MessageBox, self).__init__(parent)
         self.setWindowTitle('cimple')
         self.setIcon(QMessageBox.Icon.Information)
-        self.setFixedSize(300, 200)
 
         self.setStyleSheet(
             """
