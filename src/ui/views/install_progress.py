@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import QWidget, QProgressBar, QVBoxLayout, QLabel, QMessageBox
 import multiprocessing
 from ui.components.progress_bar import ProgressBar
+from ui.components.message_box import MessageBox
 
 
 class Worker(QThread):
@@ -66,10 +67,9 @@ class InstallProgressView(QWidget):
                 self.worker.terminate()
         else:
             self.worker.terminate()
-            message_box = QMessageBox()
+            message_box = MessageBox()
             message_box.setIcon(QMessageBox.Critical)
-            text = self.info_label.text() + message
-            message_box.setText(text)
+            message_box.setText(message)
             message_box.setWindowTitle("Error")
             message_box.buttonClicked.connect(lambda: self.error_signal.emit(message))
             message_box.exec()
