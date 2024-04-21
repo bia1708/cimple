@@ -13,7 +13,6 @@ class Worker(QThread):
         self.proxy = proxy
 
     def run(self):
-        # self.config.enable_proxy()
         self.config.perform_fresh_install(self.username, self.password, self.proxy)
 
 
@@ -59,7 +58,11 @@ class InstallProgressView(QWidget):
             self.progress_bar.setValue(progress)
             text = self.info_label.text() + message
             self.info_label.setText(text)
-            if progress == 100:
+            if progress == 0 and message == "Setting up proxy...\n":
+                self._heading_label.setText("Configuring Proxy Service")
+            if progress == 100 and self._proxy is not True:
+                self.worker.terminate()
+            elif progress == 100 and message == "Proxy setup complete":
                 self.worker.terminate()
         else:
             self.worker.terminate()
