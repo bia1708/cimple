@@ -14,7 +14,7 @@ from service.configurator import Configurator
 from ui.components.button import Button
 from ui.views.install_form import InstallFormView
 from ui.views.install_progress import InstallProgressView
-from ui.views.list_view import ListView
+from ui.views.items_view import ItemsView
 
 
 class MainWindow(QMainWindow):
@@ -29,7 +29,8 @@ class MainWindow(QMainWindow):
         # self._main_layout = QVBoxLayout()
         # self._stacked_widget = QStackedWidget()
         # self._main_layout.addWidget(self._stacked_widget)
-        self.startup_ui()
+        # self.startup_ui()
+        self.switch_to_list_view()
         self._main_window.show()
 
     def switch_to_install_form(self):
@@ -47,10 +48,10 @@ class MainWindow(QMainWindow):
         install_progress_view = InstallProgressView(self.__configurator, username, password, proxy)
         self._main_window.setCentralWidget(install_progress_view)
         install_progress_view.error_signal.connect(lambda: self.startup_ui())
-        install_progress_view.change_view_signal.connect(lambda: self.switch_to_list_view)
+        install_progress_view.change_view_signal.connect(lambda: self.switch_to_list_view())
 
     def switch_to_list_view(self):
-        list_view = ListView()
+        list_view = ItemsView(self.__configurator)
         self._main_window.setCentralWidget(list_view)
 
     def startup_ui(self):
