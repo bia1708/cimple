@@ -140,3 +140,6 @@ class Configurator(QObject):
 
     def get_current_server(self):
         return self.__current_server
+    
+    def get_all_servers(self):
+        return self.__instances.get_all()
