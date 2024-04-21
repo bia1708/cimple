@@ -49,9 +49,7 @@ class Configurator(QObject):
             self.install_signal.emit(90, "Installed plugins successfully\nConfiguring setup...\n")
             self.disable_security(username, token, "http://localhost:8080")
             self.install_signal.emit(100, "Setup complete\n")
-            print(proxy)
             if proxy is True:
-                print("hereeee")
                 self.enable_proxy()
         else:
             self.install_signal.emit(-1, "Failed to install Jenkins")
@@ -96,6 +94,7 @@ class Configurator(QObject):
             print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
+            self.install_signal.emit(-1, "Proxy setup failed")
             return None, e.returncode
         print("daaa")
         self.install_signal.emit(100, "Proxy setup complete")
