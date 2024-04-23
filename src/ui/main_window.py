@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.__configurator = Configurator()
         self._main_window = QMainWindow()
         self._main_window.setWindowTitle('cimple')
-        self._main_window.resize(600, 400)
+        self._main_window.resize(800, 500)
         self._main_window.setWindowIcon(QIcon("ui/resources/icon.png"))
         # TODO: Maybe transitions?
         # self._main_layout = QVBoxLayout()

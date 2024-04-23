@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtWidgets import QWidget, QProgressBar, QVBoxLayout, QLabel, QMessageBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
 import multiprocessing
 from ui.components.progress_bar import ProgressBar
 from ui.components.message_box import MessageBox
