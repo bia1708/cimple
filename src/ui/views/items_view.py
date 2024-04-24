@@ -1,6 +1,6 @@
 from PySide6 import QtGui
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidget, QTableWidgetItem, QSpacerItem, QSizePolicy
 from ui.components.button import Button
 from ui.components.table import Table
 from ui.components.list_view import ListView
@@ -64,15 +64,19 @@ class ItemsView(QWidget):
                 self._jobs_table.setItem(row_index, col_index, item)
 
         self._add_job_button = Button("Create Job")
+        add_job_container = QWidget()
+        add_job_container.setContentsMargins(0, 0, 0, 0)
         self._add_job_button_layout = QHBoxLayout()
         self._add_job_button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self._add_job_button_layout.addStretch()
+        # self._add_job_button_layout.addStretch()
+        # self._add_job_button_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred))
         self._add_job_button_layout.addWidget(self._add_job_button)
+        add_job_container.setLayout(self._add_job_button_layout)
         # self._add_job_button.setLayout(self._add_job_button_layout)
 
         self._right_column_layout.addWidget(self._current_server_label)
         self._right_column_layout.addWidget(self._jobs_table)
-        self._right_column_layout.addWidget(self._add_job_button)
+        self._right_column_layout.addWidget(add_job_container)
         self._right_column_layout.setSpacing(20)
         self._right_column.setLayout(self._right_column_layout)
 
