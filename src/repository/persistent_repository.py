@@ -25,11 +25,11 @@ class PersistentRepository():
         self.__items.remove(old_item)
         self.__items.append(item)
         self.write_to_file()
-        
+
     def update_current(self, item):
         self.__items.remove(item)
         self.__items.append(item)
-        
+
     def get_current(self):
         return self.__items[-1] if len(self.__items) > 0 else None
         
@@ -40,9 +40,11 @@ class PersistentRepository():
     def write_to_file(self):
         with open(self.__filename, 'wb') as file:
             pickle.dump(self.__items, file)
-    
+
     def get_all(self):
         return self.__items
-    
+
+    def close(self):
+        self.write_to_file()
     # def get_all_serialized(self):
     #     return [server.serialize() for server in self.__items]

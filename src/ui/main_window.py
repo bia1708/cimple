@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.__configurator = Configurator()
+        # self.__configurator.add_jenkins_instance("mock-url", "mock-username", "mock-token", "mock-jnlp")
         self._main_window = QMainWindow()
         self._main_window.setWindowTitle('cimple')
         self._main_window.resize(800, 500)

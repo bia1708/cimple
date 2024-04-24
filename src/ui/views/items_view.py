@@ -24,7 +24,7 @@ class ItemsView(QWidget):
         for server in self._configurator.get_all_servers():
             server_item = QtGui.QStandardItem(server.get_url())
             server_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            server_item.setEditable(True)
+            server_item.setEditable(False)
             self._server_list.appendRow(server_item)
         self._server_list_view.setModel(self._server_list)
 
@@ -63,20 +63,19 @@ class ItemsView(QWidget):
                 item = QTableWidgetItem(col_data)
                 self._jobs_table.setItem(row_index, col_index, item)
 
+        # Create job button
         self._add_job_button = Button("Create Job")
-        add_job_container = QWidget()
-        add_job_container.setContentsMargins(0, 0, 0, 0)
+        self._add_job_button_container = QWidget()
+        self._add_job_button_container.setContentsMargins(0, 0, 0, 0)
         self._add_job_button_layout = QHBoxLayout()
         self._add_job_button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-        # self._add_job_button_layout.addStretch()
-        # self._add_job_button_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred))
         self._add_job_button_layout.addWidget(self._add_job_button)
-        add_job_container.setLayout(self._add_job_button_layout)
-        # self._add_job_button.setLayout(self._add_job_button_layout)
+        self._add_job_button_container.setLayout(self._add_job_button_layout)
 
+        # Right column: Title label, table with jobs, create job button
         self._right_column_layout.addWidget(self._current_server_label)
         self._right_column_layout.addWidget(self._jobs_table)
-        self._right_column_layout.addWidget(add_job_container)
+        self._right_column_layout.addWidget(self._add_job_button_container)
         self._right_column_layout.setSpacing(20)
         self._right_column.setLayout(self._right_column_layout)
 

@@ -6,6 +6,7 @@ class Server:
         self.__username = username
         self.__token = token
         self.__jnlp_file = jnlp_file
+        self.__jobs = []
 
     def get_url(self):
         return self.__url
@@ -19,6 +20,9 @@ class Server:
     def get_jnlp_file(self):
         return self.__jnlp_file
 
+    def get_job(self):
+        return self.__jobs
+
     def set_url(self, url):
         self.__url = url
 
@@ -27,12 +31,15 @@ class Server:
 
     def set_username(self, username):
         self.__username = username
-        
+
     def set_jnlp_file(self, jnlp_file):
         self.__jnlp_file = jnlp_file
-        
+
+    def set_jobs(self, jobs):
+        self.__jobs = jobs
+
     def serialize(self):
         return pickle.dumps(self)
-    
+
     def __str__(self):
         return self.__url + ", " + self.__username + ", " + self.__token + ", " + self.__jnlp_file
