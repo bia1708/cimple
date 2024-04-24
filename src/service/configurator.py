@@ -135,11 +135,28 @@ class Configurator(QObject):
         self.__current_server = new_server
         self.__instances.update_current(self.__current_server)
 
+    def load_jobs(self):
+        script_path = "./scripts/server_configuration/get_all_jobs.sh"
+
+        try:
+            command = ["bash", script_path, self.__current_server.get_username(), self.__current_server.get_token(), self.__current_server.get_jnlp_file(), self.__current_server.get_url()]
+            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+
+            output = result.stdout.strip()
+            print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            self.install_signal.emit(-1, "Failed to get Jobs")
+            return None, e.returncode
+
     def extract_variables(self, output):
         pass
 
     def get_current_server(self):
         return self.__current_server
-    
+
     def get_all_servers(self):
         return self.__instances.get_all()
+
+    def close(self):
+        self.__instances.close()
