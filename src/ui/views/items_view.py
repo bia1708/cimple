@@ -51,12 +51,8 @@ class ItemsView(QWidget):
         self._jobs_table.setHorizontalHeaderLabels(["My Jobs", "No. of Builds", "Status", "GitHub Status"])
         
         # Populate the table with dummy job data for demonstration
-        jobs = [
-            ["Job 1", "Running", "10:00 AM"],
-            ["Job 2", "Completed", "11:30 AM"],
-            ["Job 3", "Failed", "12:45 PM"],
-        ]
-        
+        jobs = self._configurator.load_jobs()
+        # print(self._configurator.load_jobs())
         for row_index, job_data in enumerate(jobs):
             self._jobs_table.insertRow(row_index)
             for col_index, col_data in enumerate(job_data):

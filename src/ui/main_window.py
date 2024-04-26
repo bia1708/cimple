@@ -30,8 +30,11 @@ class MainWindow(QMainWindow):
         # self._main_layout = QVBoxLayout()
         # self._stacked_widget = QStackedWidget()
         # self._main_layout.addWidget(self._stacked_widget)
-        # self.startup_ui()
-        self.switch_to_list_view()
+        if self.__configurator.get_number_of_servers() == 0:
+            self.startup_ui()
+        else:
+            self.switch_to_list_view()
+        # self.switch_to_list_view()
         self._main_window.show()
 
     def switch_to_install_form(self):

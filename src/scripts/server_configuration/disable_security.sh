@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 username=$1
 pat=$2

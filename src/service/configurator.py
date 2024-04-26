@@ -39,7 +39,6 @@ class Configurator(QObject):
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
-
         if exit_code == 0:
             self.install_signal.emit(20, "Installed Jenkins successfully\nGenerating personal access token...\n")
             token = self.get_pat(username, password, "http://localhost:8080")
@@ -62,12 +61,15 @@ class Configurator(QObject):
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
+            exit_code = result.returncode
+            if exit_code != 0:
+                self.install_signal.emit(-1, "Failed to install Jenkins")
             print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             self.install_signal.emit(-1, "Failed to install plugins")
             return None, e.returncode
-        
+
     def disable_security(self, username, token, url):
         script_path = "./scripts/server_configuration/disable_security.sh"
 
@@ -76,6 +78,9 @@ class Configurator(QObject):
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
+            exit_code = result.returncode
+            if exit_code != 0:
+                self.install_signal.emit(-1, "Failed to install Jenkins")
             print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
@@ -91,13 +96,17 @@ class Configurator(QObject):
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
+            exit_code = result.returncode
+            if exit_code != 0:
+                self.install_signal.emit(-1, "Failed to install Jenkins")
+            else:
+                self.install_signal.emit(100, "Proxy setup complete")
             print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             self.install_signal.emit(-1, "Proxy setup failed")
             return None, e.returncode
-        print("daaa")
-        self.install_signal.emit(100, "Proxy setup complete")
+        
 
     def get_pat(self, username, password, url):
         script_path = "./scripts/server_configuration/generate_pat.sh"
@@ -108,6 +117,9 @@ class Configurator(QObject):
 
             output = result.stdout.strip()
             token = output.split(":")[1]
+            exit_code = result.returncode
+            if exit_code != 0:
+                self.install_signal.emit(-1, "Failed to install Jenkins")
             return token
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
@@ -123,6 +135,9 @@ class Configurator(QObject):
 
             output = result.stdout.strip()
             jnlp_file = output.split(":")[1]
+            exit_code = result.returncode
+            if exit_code != 0:
+                self.install_signal.emit(-1, "Failed to install Jenkins")
             return jnlp_file
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
@@ -136,18 +151,26 @@ class Configurator(QObject):
         self.__instances.update_current(self.__current_server)
 
     def load_jobs(self):
-        script_path = "./scripts/server_configuration/get_all_jobs.sh"
+        jobs_with_info = []
+        jenkins = self.__current_server.to_api_object()
+        jobs = jenkins.get_jobs()
+        for job in jobs:
+            job_name = job['name']
+            last_build_number = jenkins.get_job_info(job_name)['lastCompletedBuild']['number']
+            job_result = jenkins.get_build_info(job_name, last_build_number)['result']
+            for prop in jenkins.get_job_info(job_name)['property']:
+                if "PipelineTriggers" in prop['_class']:
+                    github_enabled = "ENABLED"
+                else:
+                    github_enabled = "DISABLED"
+            jobs_with_info.append([job_name, last_build_number.__str__(), job_result, github_enabled])
 
-        try:
-            command = ["bash", script_path, self.__current_server.get_username(), self.__current_server.get_token(), self.__current_server.get_jnlp_file(), self.__current_server.get_url()]
-            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
-
-            output = result.stdout.strip()
-            print(output)
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
-            self.install_signal.emit(-1, "Failed to get Jobs")
-            return None, e.returncode
+        # print(jenkins.get_job_info('cimple'))
+        # for prop in jenkins.get_job_info('cimple')['property']:
+        #     if "PipelineTriggers" in prop['_class']:
+        #         print("yes")
+        # jobs = [[x['name'], jenkins.get_job_info(x['name'])['lastCompletedBuild']['number'].__str__(), jenkins.get_build_info(x['name'], jenkins.get_job_info(x['name'])['lastCompletedBuild']['number'])['result']] for x in jenkins.get_jobs()]
+        return jobs_with_info
 
     def extract_variables(self, output):
         pass
@@ -157,6 +180,9 @@ class Configurator(QObject):
 
     def get_all_servers(self):
         return self.__instances.get_all()
+    
+    def get_number_of_servers(self):
+        return len(self.__instances.get_all())
 
     def close(self):
         self.__instances.close()
