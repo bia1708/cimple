@@ -156,8 +156,15 @@ class Configurator(QObject):
         jobs = jenkins.get_jobs()
         for job in jobs:
             job_name = job['name']
-            last_build_number = jenkins.get_job_info(job_name)['lastCompletedBuild']['number']
-            job_result = jenkins.get_build_info(job_name, last_build_number)['result']
+            try:
+                last_build_number = jenkins.get_job_info(job_name)['lastCompletedBuild']['number']
+            except:
+                last_build_number = "N/A"
+            try:
+                job_result = jenkins.get_build_info(job_name, last_build_number)['result']
+            except:
+                job_result = "N/A"
+
             for prop in jenkins.get_job_info(job_name)['property']:
                 if "PipelineTriggers" in prop['_class']:
                     github_enabled = "ENABLED"
@@ -165,11 +172,6 @@ class Configurator(QObject):
                     github_enabled = "DISABLED"
             jobs_with_info.append([job_name, last_build_number.__str__(), job_result, github_enabled])
 
-        # print(jenkins.get_job_info('cimple'))
-        # for prop in jenkins.get_job_info('cimple')['property']:
-        #     if "PipelineTriggers" in prop['_class']:
-        #         print("yes")
-        # jobs = [[x['name'], jenkins.get_job_info(x['name'])['lastCompletedBuild']['number'].__str__(), jenkins.get_build_info(x['name'], jenkins.get_job_info(x['name'])['lastCompletedBuild']['number'])['result']] for x in jenkins.get_jobs()]
         return jobs_with_info
 
     def extract_variables(self, output):
