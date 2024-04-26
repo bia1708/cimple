@@ -1,5 +1,5 @@
 from PySide6 import QtGui
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidget, QTableWidgetItem, QSpacerItem, QSizePolicy
 from ui.components.button import Button
 from ui.components.table import Table
@@ -41,7 +41,10 @@ class ItemsView(QWidget):
         self._right_column_layout = QVBoxLayout()
         self._right_column_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self._current_server_label = QLabel(self._configurator.get_current_server().get_url())
+        self._current_server_label = QLabel("<a href=\"" + self._configurator.get_current_server().get_url() + "\">" + self._configurator.get_current_server().get_url() + "</a>")
+        self._current_server_label.setTextFormat(Qt.TextFormat.RichText)
+        self._current_server_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+        self._current_server_label.setOpenExternalLinks(True)
         self._current_server_label.setStyleSheet("font-family: Inria Sans; font-size: 20px; text-align: center;")
         self._current_server_label.setWordWrap(True)
         self._current_server_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -49,15 +52,21 @@ class ItemsView(QWidget):
         # Create a table to display the list of jobs for the current server
         self._jobs_table = Table()  # Rows and columns
         self._jobs_table.setHorizontalHeaderLabels(["My Jobs", "No. of Builds", "Status", "GitHub Status"])
-        
+
+        self.update_table()
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_table)
+        self.timer.start(2000)
+
         # Populate the table with dummy job data for demonstration
-        jobs = self._configurator.load_jobs()
-        # print(self._configurator.load_jobs())
-        for row_index, job_data in enumerate(jobs):
-            self._jobs_table.insertRow(row_index)
-            for col_index, col_data in enumerate(job_data):
-                item = QTableWidgetItem(col_data)
-                self._jobs_table.setItem(row_index, col_index, item)
+        # jobs = self._configurator.load_jobs()
+        # # print(self._configurator.load_jobs())
+        # for row_index, job_data in enumerate(jobs):
+        #     self._jobs_table.insertRow(row_index)
+        #     for col_index, col_data in enumerate(job_data):
+        #         item = QTableWidgetItem(col_data)
+        #         self._jobs_table.setItem(row_index, col_index, item)
 
         # Create job button
         self._add_job_button = Button("Create Job")
@@ -81,3 +90,16 @@ class ItemsView(QWidget):
         self._view_layout = QHBoxLayout()
         self._view_layout.addWidget(self._splitter)
         self.setLayout(self._view_layout)
+
+    def update_table(self):
+        # Clear contents first
+        self._jobs_table.setRowCount(0)
+
+        # Populate the table with dummy job data for demonstration
+        jobs = self._configurator.load_jobs()
+        # print(self._configurator.load_jobs())
+        for row_index, job_data in enumerate(jobs):
+            self._jobs_table.insertRow(row_index)
+            for col_index, col_data in enumerate(job_data):
+                item = QTableWidgetItem(col_data)
+                self._jobs_table.setItem(row_index, col_index, item)
