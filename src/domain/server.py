@@ -1,4 +1,5 @@
 import pickle
+from jenkins import Jenkins
 
 class Server:
     def __init__(self, url, username, token, jnlp_file):
@@ -40,6 +41,9 @@ class Server:
 
     def serialize(self):
         return pickle.dumps(self)
+
+    def to_api_object(self):
+        return Jenkins(self.__url, username=self.__username, password=self.__token)
 
     def __str__(self):
         return self.__url + ", " + self.__username + ", " + self.__token + ", " + self.__jnlp_file

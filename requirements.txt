@@ -1,3 +1,4 @@
 pytest
 pytest-html
 pyside6
+python-jenkins
