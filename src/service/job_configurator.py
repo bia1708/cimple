@@ -1,10 +1,12 @@
 import subprocess
 import os
+from PySide6.QtCore import QObject, Signal
 from repository.repository import Repository
 from domain.git_repo import Git_Repo
 
-class JobConfigurator:
+class JobConfigurator(QObject):
     def __init__(self, server):
+        super().__init__()
         self.__server = server
         # self.__jobs = Repository()
 
@@ -88,15 +90,48 @@ class JobConfigurator:
         ini_file.write(text)
         ini_file.close()
 
-    def validate_gh_credentials(self, git_username, git_pat, repo_name, username, token, needs_gist):
-        script_path = "./scripts/job_configuration/git_auth.sh"
+    auth_signal = Signal(int, str)
+
+    def validate_gh_credentials(self, git_pat):
+        script_path = "./scripts/job_configuration/check_auth.sh"
 
         try:
-            command = ["bash", script_path, git_username, git_pat, repo_name, username, token]
+            command = ["bash", script_path, git_pat]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
+            exit_code = result.returncode
             print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
+        
+        if exit_code == 0:
+            self.auth_signal.emit(0, "Authentication completed successfully.")
+            return True
+        else:
+            self.auth_signal.emit(1, "Authentication error. Please check your git credentials and try again.")
+        return False
+
+    def validate_token_permissions(self, git_pat):
+        script_path = "./scripts/job_configuration/check_git_pat_permissions.sh"
+
+        try:
+            command = ["bash", script_path, git_pat]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()
+            exit_code = result.returncode
+            print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
+        
+        if exit_code == 0:
+            self.auth_signal.emit(0, "Token has the required permissions.")
+            return True
+        elif exit_code == 1:
+            self.auth_signal.emit(1, "Your token needs Gist permissions.")
+        elif exit_code ==2:
+            self.auth_signal.emit(2, "Your token needs repo_hook permissions.")
+        return False

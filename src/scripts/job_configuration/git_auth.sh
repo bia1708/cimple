@@ -23,19 +23,6 @@ fi
 
 gh auth status
 
-# curl -H $CRUMB -X POST "http://$username:$token@localhost:8080/credentials/store/system/domain/_/createCredentials" \
-# --data-urlencode 'json={
-#   "": "0",
-#   "credentials": {
-#     "scope": "GLOBAL",
-#     "id": "git-token-'$repo_name'",
-#     "username": '$git_username',
-#     "password": "'$git_token'",
-#     "description": "git_credentials",
-#     "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-#   }
-# }'
-
 echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
   <scope>GLOBAL</scope>
   <id>git_pat_$repo_name</id>

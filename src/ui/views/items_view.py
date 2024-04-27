@@ -1,6 +1,7 @@
 from PySide6 import QtGui, QtCore
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QMainWindow
+from ui.views.create_job_form import CreateJobFormView
 from ui.components.button import Button
 from ui.components.table import Table
 from ui.components.list_view import ListView
@@ -79,6 +80,7 @@ class ItemsView(QWidget):
         self._add_job_button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
         self._add_job_button_layout.addWidget(self._add_job_button)
         self._add_job_button_container.setLayout(self._add_job_button_layout)
+        self._add_job_button.pressed.connect(self.show_create_job_view)
 
         # Right column: Title label, table with jobs, create job button
         self._right_column_layout.addWidget(self._current_server_label)
@@ -129,3 +131,10 @@ class ItemsView(QWidget):
             if item.text() == url:
                 return self._server_list.index(row, 0)
         return QtCore.QModelIndex()
+
+    def show_create_job_view(self):
+        self.create_job_form = CreateJobFormView(self._configurator.get_current_server())
+        # create_job_form.show()
+        # job_window = QMainWindow()
+        # job_window.setCentralWidget(create_job_form)
+        # job_window.show()
