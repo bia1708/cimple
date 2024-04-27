@@ -3,10 +3,10 @@ import os
 from repository.repository import Repository
 from domain.git_repo import Git_Repo
 
-class Job_Configurator:
+class JobConfigurator:
     def __init__(self, server):
         self.__server = server
-        self.__jobs = Repository()
+        # self.__jobs = Repository()
 
     def create_job(self, git_repo):
         # os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
@@ -87,3 +87,16 @@ class Job_Configurator:
         ini_file = open("../artifacts/jenkins_jobs.ini", "w")
         ini_file.write(text)
         ini_file.close()
+
+    def validate_gh_credentials(self, git_username, git_pat, repo_name, username, token, needs_gist):
+        script_path = "./scripts/job_configuration/git_auth.sh"
+
+        try:
+            command = ["bash", script_path, git_username, git_pat, repo_name, username, token]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()
+            print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode

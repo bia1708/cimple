@@ -106,7 +106,6 @@ class Configurator(QObject):
             print(f"Error: {e}")
             self.install_signal.emit(-1, "Proxy setup failed")
             return None, e.returncode
-        
 
     def get_pat(self, username, password, url):
         script_path = "./scripts/server_configuration/generate_pat.sh"
@@ -174,15 +173,19 @@ class Configurator(QObject):
 
         return jobs_with_info
 
-    def extract_variables(self, output):
-        pass
+    def set_current_server(self, url):
+        for server in self.__instances.get_all():
+            if server.get_url() == url:
+                self.__current_server = server
+                self.__instances.update_current(server)
+                break
 
     def get_current_server(self):
         return self.__current_server
 
     def get_all_servers(self):
         return self.__instances.get_all()
-    
+
     def get_number_of_servers(self):
         return len(self.__instances.get_all())
 

@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QCloseEvent, QIcon, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -22,10 +22,10 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.__configurator = Configurator()
         # self.__configurator.add_jenkins_instance("mock-url", "mock-username", "mock-token", "mock-jnlp")
-        self._main_window = QMainWindow()
-        self._main_window.setWindowTitle('cimple')
-        self._main_window.resize(800, 500)
-        self._main_window.setWindowIcon(QIcon("ui/resources/icon.png"))
+        # self._main_window = QMainWindow()
+        self.setWindowTitle('cimple')
+        self.resize(800, 500)
+        self.setWindowIcon(QIcon("ui/resources/icon.png"))
         # TODO: Maybe transitions?
         # self._main_layout = QVBoxLayout()
         # self._stacked_widget = QStackedWidget()
@@ -34,13 +34,12 @@ class MainWindow(QMainWindow):
             self.startup_ui()
         else:
             self.switch_to_list_view()
-        # self.switch_to_list_view()
-        self._main_window.show()
+        self.show()
 
     def switch_to_install_form(self):
         install_form_view = InstallFormView()
         install_form_view.form_signal.connect(self.switch_to_install_progress)
-        self._main_window.setCentralWidget(install_form_view)
+        self.setCentralWidget(install_form_view)
 
         # TODO: Maybe transitions??
         # self._stacked_widget.addWidget(install_form_view)
@@ -50,17 +49,17 @@ class MainWindow(QMainWindow):
     def switch_to_install_progress(self, username, password, proxy):
         print(username, password, proxy)
         install_progress_view = InstallProgressView(self.__configurator, username, password, proxy)
-        self._main_window.setCentralWidget(install_progress_view)
+        self.setCentralWidget(install_progress_view)
         install_progress_view.error_signal.connect(lambda: self.startup_ui())
         install_progress_view.change_view_signal.connect(lambda: self.switch_to_list_view())
 
     def switch_to_list_view(self):
         list_view = ItemsView(self.__configurator)
-        self._main_window.setCentralWidget(list_view)
+        self.setCentralWidget(list_view)
 
     def startup_ui(self):
-        label_widget = QWidget(self._main_window)
-        self._main_window.setCentralWidget(label_widget)
+        label_widget = QWidget(self)
+        self.setCentralWidget(label_widget)
 
         # TODO: Fix too much spacing here
         layout = QVBoxLayout()
@@ -68,14 +67,14 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         label_widget.setLayout(layout)  # Assign the layout to the widget
 
-        heading_label = QLabel(self._main_window)
+        heading_label = QLabel(self)
         heading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         heading_label.setStyleSheet('font-family: Inria Sans; font-size: 22px; text-align: center;')
         heading_label.setWordWrap(True)
         heading_label.setText("Welcome to cimple!")
         label_widget.layout().addWidget(heading_label)
 
-        subheading_label = QLabel(self._main_window)
+        subheading_label = QLabel(self)
         subheading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subheading_label.setStyleSheet('font-family: Inria Sans; font-size: 18px; text-align: center;')
         subheading_label.setWordWrap(True)
@@ -83,7 +82,7 @@ class MainWindow(QMainWindow):
                                  " Or, you can connect to an existing instance and start automating your workflows instantly!")
         label_widget.layout().addWidget(subheading_label)
 
-        buttons_widget = QWidget(self._main_window)
+        buttons_widget = QWidget(self)
         # window.setCentralWidget(buttons_widget)
         buttons_widget.setLayout(QHBoxLayout())
         btn1 = Button('Connect to Existing Instance', buttons_widget)
@@ -97,6 +96,17 @@ class MainWindow(QMainWindow):
 
         return label_widget
 
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.__configurator.close()
+        return super().closeEvent(event)
+
+    # def close(self, event):
+    #     print("HERE")
+    #     print(self.__configurator.get_current_server())
+    #     self.__configurator.close()
+    #     event.accept()
+    #     return super().closeEvent(event)
+
     # def animate_transition(self, widget):
     #     # Create a property animation to animate the opacity of the widget
     #     animation = QPropertyAnimation(widget, b"opacity")
@@ -105,9 +115,3 @@ class MainWindow(QMainWindow):
     #     animation.setEndValue(1.0)  # Set the end value of the opacity
     #     animation.setEasingCurve(QEasingCurve())  # Set the easing curve for smooth animation
     #     animation.start(QPropertyAnimation.DeletionPolicy.DeleteWhenStopped)  # Start the animation and delete it when stopped
-
-
-# if __name__ == '__main__':
-#     app = QApplication(sys.argv)
-#     gui = MainWindow()
-#     sys.exit(app.exec())
