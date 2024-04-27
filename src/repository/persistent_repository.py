@@ -28,11 +28,11 @@ class PersistentRepository():
 
     def update_current(self, item):
         self.__items.remove(item)
-        self.__items.append(item)
+        self.__items.insert(0, item)
 
     def get_current(self):
-        return self.__items[-1] if len(self.__items) > 0 else None
-        
+        return self.__items[0] if len(self.__items) > 0 else None
+
     def read_from_file(self):
         with open(self.__filename, 'rb') as file:
             return pickle.load(file)
