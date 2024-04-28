@@ -26,7 +26,7 @@ class JobConfigurator(QObject):
             print(f"Error: {e}")
             return None, e.returncode
 
-    def init_repo(self, repo_name, git_username, git_pat):
+    def init_repo(self, repo_name, git_username, git_pat, git_status):
         git_repo = Git_Repo(repo_name, git_username, git_pat)
         self.init_gh(git_pat, git_username, repo_name, self.__server.get_username(), self.__server.get_token())
         # self.setup_webhooks(git_repo)
@@ -92,25 +92,29 @@ class JobConfigurator(QObject):
 
     auth_signal = Signal(int, str)
 
-    def validate_gh_credentials(self, git_pat):
+    def validate_gh_credentials(self, git_pat, git_username):
         script_path = "./scripts/job_configuration/check_auth.sh"
 
         try:
-            command = ["bash", script_path, git_pat]
+            command = ["bash", script_path, git_pat, git_username]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
             exit_code = result.returncode
             print(output)
+            print(exit_code)
+
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
-        
+
         if exit_code == 0:
             self.auth_signal.emit(0, "Authentication completed successfully.")
             return True
-        else:
+        elif exit_code == 1:
             self.auth_signal.emit(1, "Authentication error. Please check your git credentials and try again.")
+        elif exit_code == 2:
+            self.auth_signal.emit(2, "Username and token don't match!")
         return False
 
     def validate_token_permissions(self, git_pat):
@@ -130,8 +134,31 @@ class JobConfigurator(QObject):
         if exit_code == 0:
             self.auth_signal.emit(0, "Token has the required permissions.")
             return True
-        elif exit_code == 1:
+        elif exit_code == 142:
             self.auth_signal.emit(1, "Your token needs Gist permissions.")
-        elif exit_code ==2:
+        elif exit_code ==242:
             self.auth_signal.emit(2, "Your token needs repo_hook permissions.")
+        return False
+
+    def validate_repo_exists(self, username, git_repo):
+        script_path = "./scripts/job_configuration/check_git_repo_exists.sh"
+
+        try:
+            command = ["bash", script_path, username, git_repo]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()
+            exit_code = result.returncode
+            print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
+        
+        if exit_code == 0:
+            self.auth_signal.emit(0, "Repository validated.")
+            return True
+        elif exit_code == 128:
+            self.auth_signal.emit(1, "The provided repository does not exist.")
+        elif exit_code ==1:
+            self.auth_signal.emit(2, "Repository does not belong to the provided user.")
         return False

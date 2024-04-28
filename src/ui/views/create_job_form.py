@@ -1,9 +1,51 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QThreadPool, QObject, QRunnable, QThread
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QCheckBox
 
 from service.job_configurator import JobConfigurator
 from ui.components.line_edit import LineEdit
 from ui.components.button import Button
+
+
+class JobCreationWorker(QThread):
+    def __init__(self, config, repo, username, token, git_status):
+        super().__init__()
+        self.repo = repo
+        self.config = config
+        self.username = username
+        self.token = token
+        self.git_status = git_status
+
+    finished_signal = Signal(bool)
+
+    def run(self):
+        self.config.init_repo(self.repo, self.username, self.token, self.git_status)
+        self.finished_signal.emit(True)
+
+
+
+class WorkerSignal(QObject):
+    # Signal to emit thread results
+    result_signal = Signal(bool, bool, bool)
+
+
+class Worker(QRunnable):
+    def __init__(self, config, username, token, git_status, repo):
+        super().__init__()
+        self.config = config
+        self.username = username
+        self.token = token
+        self.git_status = git_status
+        self.repo = repo
+        self.signal = WorkerSignal()
+
+    # result_signal = Signal(bool, bool)
+    def run(self):
+        auth = self.config.validate_gh_credentials(self.token, self.username)
+        repo = self.config.validate_repo_exists(self.username, self.repo)
+        permissions = not self.git_status
+        if self.git_status is True:
+            permissions = self.config.validate_token_permissions(self.token)
+        self.signal.result_signal.emit(auth, permissions, repo)
 
 
 class CreateJobFormView(QWidget):
@@ -13,6 +55,8 @@ class CreateJobFormView(QWidget):
         self._job_configurator = JobConfigurator(self._server)
         self.setWindowTitle("cimple")
         self.resize(600, 350)
+
+        self.thread_pool = QThreadPool()
 
         # Create form widget
         self._form_widget = QWidget()
@@ -43,7 +87,7 @@ class CreateJobFormView(QWidget):
             ))
 
         # Next button which sends a signal to the main window object to perform the fresh install
-        self._next_button = Button("Next")
+        self._next_button = Button("Create")
         self._next_button.setEnabled(False)
         self._next_button.pressed.connect(self.next_button_action)
 
@@ -51,10 +95,11 @@ class CreateJobFormView(QWidget):
         layout = QFormLayout()
         layout.addRow(self._username_label, self._username_line_edit)
         layout.addRow(self._token_label, self._token_line_edit)
+        layout.addRow(self._repo_label, self._repo_line_edit)
         self._error_label = QLabel()
         self._error_label.setStyleSheet("color: red;")
         self._error_label.setVisible(False)
-        # self._job_configurator.auth_signal.connect(self.show_error)
+        self._job_configurator.auth_signal.connect(self.show_error)
         layout.addWidget(self._checkbox)
         layout.addWidget(self._error_label)
         layout.addWidget(self._next_button)
@@ -77,29 +122,32 @@ class CreateJobFormView(QWidget):
     def check_input(self):
         username = self._username_line_edit.text().strip()
         token = self._token_line_edit.text().strip()
-        permissions = True
-        auth = False
-        if bool(username) and bool(token):
-            auth = self.validate_token(token)
-            if auth is False:
-                self.show_error(1, "Wrong auth")
-        if self._checkbox.isChecked():
-            permissions = self.validate_permissions(token)
-            if permissions is False:
-                self.show_error(1, "No permissions")
-        self._next_button.setEnabled(auth and permissions)
+        repo = self._repo_line_edit.text().strip()
+        if bool(username) and bool(token) and bool(repo):
+            worker = Worker(self._job_configurator, username, token, self._checkbox.isChecked(), repo)
+            worker.signal.result_signal.connect(self.enable_next)
+            self.thread_pool.start(worker)
+
+    def enable_next(self, auth, permissions, repo):
+        print(auth and permissions)
+        self._next_button.setEnabled(auth and permissions and repo)
 
     def next_button_action(self):
-        self.form_signal.emit(self._username_line_edit.text(), self._token_line_edit.text(), self._checkbox.isChecked())
-
-    def validate_token(self, token):
-        return self._job_configurator.validate_gh_credentials(token)
-
-    def validate_permissions(self, token):
-        return self._job_configurator.validate_token_permissions(token)
+        # self.form_signal.emit(self._username_line_edit.text(), self._token_line_edit.text(), self._checkbox.isChecked())
+        self.setCursor(Qt.CursorShape.BusyCursor)
+        self.job_worker = JobCreationWorker(self._job_configurator, self._repo_line_edit.text(), self._username_line_edit.text(), self._token_line_edit.text(), self._checkbox.isChecked())
+        self.job_worker.finished_signal.connect(self.finished_job_creation)
+        self.job_worker.start()
 
     def show_error(self, error_code, message):
+        print("cplm")
         if error_code != 0:
-            print("HEHE")
             self._error_label.setText(message)
             self._error_label.setVisible(True)
+        else:
+            self._error_label.setVisible(False)
+
+    def finished_job_creation(self, status):
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        if(status):
+            self.close()

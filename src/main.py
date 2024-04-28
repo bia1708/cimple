@@ -34,3 +34,8 @@ if __name__ == '__main__':
 #TODO: ADD pip DEPS IN REQ.TXT
 #TODO: make jenkins sudoer?
 #TODO: Create setup.py with PyCharm
+
+# Bad Tokens for testing:
+#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
+#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
+#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
