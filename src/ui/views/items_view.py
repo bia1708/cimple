@@ -1,11 +1,12 @@
 from PySide6 import QtGui, QtCore
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QMainWindow
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QSpacerItem, QSizePolicy
 from ui.views.create_job_form import CreateJobFormView
 from ui.components.button import Button
 from ui.components.table import Table
 from ui.components.list_view import ListView
 from ui.components.link_event import LinkEvent
+from ui.views.connect_to_server_form import ConnectToServerFormView
 
 
 class ItemsView(QWidget):
@@ -72,20 +73,32 @@ class ItemsView(QWidget):
         self.timer.timeout.connect(self.update_jobs_table)
         self.timer.start(2000)
 
-        # Create job button
+        # Create job button + Connect to server button
+        self._buttons_container = QWidget()
+        self._buttons_container.setContentsMargins(0, 0, 0, 0)
+        self._buttons_container_layout = QHBoxLayout()
+        self._buttons_container.setLayout(self._buttons_container_layout)
+
         self._add_job_button = Button("Create Job")
-        self._add_job_button_container = QWidget()
-        self._add_job_button_container.setContentsMargins(0, 0, 0, 0)
-        self._add_job_button_layout = QHBoxLayout()
-        self._add_job_button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self._add_job_button_layout.addWidget(self._add_job_button)
-        self._add_job_button_container.setLayout(self._add_job_button_layout)
-        self._add_job_button.pressed.connect(self.show_create_job_view)
+        # self._add_job_button_layout = QHBoxLayout()
+        # self._add_job_button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+        # self._add_job_button_layout.addWidget(self._add_job_button)
+        self._add_job_button.clicked.connect(self.show_create_job_view)
+
+        self._connect_to_server_button = Button("Connect to Server")
+        # self._connect_to_server_button_layout = QHBoxLayout()
+        # self._connect_to_server_button_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        # self._connect_to_server_button_layout.addWidget(self._connect_to_server_button)
+        self._connect_to_server_button.clicked.connect(self.show_connect_to_server_view)
+
+        self._buttons_container_layout.addWidget(self._connect_to_server_button)
+        self._buttons_container_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred))
+        self._buttons_container_layout.addWidget(self._add_job_button)
 
         # Right column: Title label, table with jobs, create job button
         self._right_column_layout.addWidget(self._current_server_label)
         self._right_column_layout.addWidget(self._jobs_table)
-        self._right_column_layout.addWidget(self._add_job_button_container)
+        self._right_column_layout.addWidget(self._buttons_container)
         self._right_column_layout.setSpacing(20)
         self._right_column.setLayout(self._right_column_layout)
 
@@ -138,3 +151,6 @@ class ItemsView(QWidget):
         # job_window = QMainWindow()
         # job_window.setCentralWidget(create_job_form)
         # job_window.show()
+
+    def show_connect_to_server_view(self):
+        self.connect_to_server_form = ConnectToServerFormView(self._configurator)

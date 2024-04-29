@@ -164,11 +164,11 @@ class Configurator(QObject):
             except:
                 job_result = "N/A"
 
-            for prop in jenkins.get_job_info(job_name)['property']:
-                if "PipelineTriggers" in prop['_class']:
-                    github_enabled = "ENABLED"
-                else:
-                    github_enabled = "DISABLED"
+            github_enabled = "DISABLED"
+            if "property" in jenkins.get_job_info(job_name).keys():
+                for prop in jenkins.get_job_info(job_name)['property']:
+                    if "PipelineTriggers" in prop['_class']:
+                        github_enabled = "ENABLED"
             jobs_with_info.append([job_name, last_build_number.__str__(), job_result, github_enabled])
 
         return jobs_with_info

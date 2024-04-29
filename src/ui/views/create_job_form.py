@@ -140,7 +140,6 @@ class CreateJobFormView(QWidget):
         self.job_worker.start()
 
     def show_error(self, error_code, message):
-        print("cplm")
         if error_code != 0:
             self._error_label.setText(message)
             self._error_label.setVisible(True)
