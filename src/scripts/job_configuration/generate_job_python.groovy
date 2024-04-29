@@ -1,5 +1,7 @@
 pipelineJob("${REPO_NAME}"){
     environmentVariables {
+        env('REPO', "${REPO}")
+        env('REPO_NAME', "${REPO_NAME}")
         propertiesFile("properties_file.props")
     }
     definition {
@@ -27,6 +29,7 @@ pipeline {
             steps {
                     script {
                     def props = readProperties  file:"${WORKSPACE}/properties_file.props"
+                    echo env.REPO
                     env.REPO= props["REPO"]
                     env.REPO_NAME = props["REPO_NAME"]
                     env.REQUIREMENTS = props["REQUIREMENTS"]
