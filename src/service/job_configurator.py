@@ -13,7 +13,10 @@ class JobConfigurator(QObject):
     def create_job(self, git_repo):
         # os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
         self.parse_repo(git_repo)
+        print("HERE1")
+        
         self.create_jenkins_jobs_ini()
+        print("HERE2")
 
         script_path = "./scripts/job_configuration/create_job.sh"
         try:
