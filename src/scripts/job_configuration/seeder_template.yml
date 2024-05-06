@@ -1,0 +1,25 @@
+- job:
+    name: seeder
+    project-type: pipeline
+    sandbox: true
+    parameters:
+    - string:
+        name: REPO
+    - string:
+        name: REPO_NAME
+    dsl: |
+        pipeline {{
+            agent any
+
+            stages {{
+                stage('Generate Repo Job') {{
+                    steps {{
+                        jobDsl scriptText: '''
+                        {script}
+                        '''
+                        // jobDsl targets:"generate_job.groovy",
+                        //     additionalParameters: [REPO : env.REPO, REPO_NAME : env.REPO_NAME]
+                    }}
+                }}
+            }}
+        }}

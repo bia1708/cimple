@@ -10,13 +10,24 @@ class JobConfigurator(QObject):
         self.__server = server
         # self.__jobs = Repository()
 
-    def create_job(self, git_repo):
+    def create_job(self, git_repo, git_status):
         # os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
-        self.parse_repo(git_repo)
-        print("HERE1")
-        
+        # self.parse_repo(git_repo)
         self.create_jenkins_jobs_ini()
-        print("HERE2")
+        
+        if git_status is True:
+            pipeline_script_file = open("./scripts/job_configuration/generate_job_python_with_git.groovy", "r")
+        else:
+            pipeline_script_file = open("./scripts/job_configuration/generate_job_python.groovy", "r")
+        pipeline_script = pipeline_script_file.read()
+        pipeline_script_file.close()
+        with open("./scripts/job_configuration/seeder_template.yml") as seeder_template_file:
+            seeder_script = seeder_template_file.read()
+        seeder_template_file.close()
+        seeder_script = f"{seeder_script}".replace("{script}", pipeline_script)
+        seeder_script_file = open("./scripts/job_configuration/seeder.yml", "w")
+        seeder_script_file.write(seeder_script)
+        seeder_script_file.close()
 
         script_path = "./scripts/job_configuration/create_job.sh"
         try:
@@ -33,7 +44,7 @@ class JobConfigurator(QObject):
         git_repo = Git_Repo(repo_name, git_username, git_pat)
         self.init_gh(git_pat, git_username, repo_name, self.__server.get_username(), self.__server.get_token())
         # self.setup_webhooks(git_repo)
-        job = self.create_job(git_repo)
+        job = self.create_job(git_repo, git_status)
         # self.__jobs.add(job)
 
     def init_gh(self, git_pat, git_username, repo_name, username, pat):

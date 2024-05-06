@@ -46,6 +46,8 @@ echo "readme:$readme_exit_code"
 if [ $readme_exit_code -eq 0 ]; then
   echo "README found!"
   url=$(echo $readme | jq -r '.download_url')
+  echo $readme
+  echo $url
   wget -O "../artifacts/readme" $url
   check_instructions=$(cat ../artifacts/readme | grep -Eio "build|instructions|install|run")
   rm ../artifacts/readme
