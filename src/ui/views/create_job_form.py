@@ -129,7 +129,7 @@ class CreateJobFormView(QWidget):
             self.thread_pool.start(worker)
 
     def enable_next(self, auth, permissions, repo):
-        print(auth and permissions)
+        print(auth and permissions and repo)
         self._next_button.setEnabled(auth and permissions and repo)
 
     def next_button_action(self):
@@ -149,4 +149,5 @@ class CreateJobFormView(QWidget):
     def finished_job_creation(self, status):
         self.setCursor(Qt.CursorShape.ArrowCursor)
         if(status):
+            self.job_worker.terminate()
             self.close()

@@ -37,9 +37,9 @@ repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get
 
 existing_jobs=$(java -jar $jenkins_cli -auth $username:$pat -s $url list-jobs)
 
-if [ "$(echo $existing_jobs | grep "seeder")" == "" ]; then
-  jenkins-jobs --conf ../artifacts/jenkins_jobs.ini update ./scripts/job_configuration/seeder.yml
-fi
+#if [ "$(echo $existing_jobs | grep "seeder")" == "" ]; then
+#fi
+jenkins-jobs --conf ../artifacts/jenkins_jobs.ini update ./scripts/job_configuration/seeder.yml
 
 # Run seeder to generate job
 java -jar $jenkins_cli -auth $username:$pat -s $url build seeder -p REPO=$repo -p REPO_NAME=$repo_name -f
