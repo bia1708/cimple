@@ -32,7 +32,9 @@ class MainWindow(QMainWindow):
         # self._stacked_widget = QStackedWidget()
         # self._main_layout.addWidget(self._stacked_widget)
         # self.startup_ui()
+        # self.switch_to_list_view()
         # self.__configurator.remove("http://127.0.0.1:8080")
+        # self.__configurator.remove("mock-url/")
         # self.__configurator.remove("http://localhost:8080")
         if self.__configurator.get_number_of_servers() == 0:
             self.startup_ui()
@@ -62,12 +64,20 @@ class MainWindow(QMainWindow):
         print(username, password, proxy)
         install_progress_view = InstallProgressView(self.__configurator, username, password, proxy)
         self.setCentralWidget(install_progress_view)
-        install_progress_view.error_signal.connect(lambda: self.startup_ui())
+        install_progress_view.error_signal.connect(self.install_error_comeback)
         install_progress_view.change_view_signal.connect(lambda: self.switch_to_list_view())
 
     def switch_to_list_view(self):
-        list_view = ItemsView(self.__configurator)
-        self.setCentralWidget(list_view)
+        self.list_view = ItemsView(self.__configurator)
+        self.list_view.fresh_install_signal.connect(self.switch_to_install_form)
+        self.setCentralWidget(self.list_view)
+
+    def install_error_comeback(self):
+        if len(self.__configurator.get_all_servers()) > 0 and self.__configurator.get_server_by_url("http://127.0.0.1:8080") is not None \
+            and self.__configurator.get_server_by_url("http://localhost:8080") is not None:
+            self.switch_to_list_view()
+        else:
+            self.startup_ui()
 
     def startup_ui(self):
         label_widget = QWidget(self)

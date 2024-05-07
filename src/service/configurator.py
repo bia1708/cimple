@@ -200,8 +200,11 @@ class Configurator(QObject):
     def get_number_of_servers(self):
         return len(self.__instances.get_all())
 
+    def get_server_by_url(self, url):
+        return self.__instances.get_server_by_url(url)
+
     def close(self):
         self.__instances.close()
-        
+
     def remove(self, server):
         self.__instances.delete(self.__instances.get_server_by_url(server))
