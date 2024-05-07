@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt, Signal, QThread
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QMessageBox
 
+from ui.components.message_box import MessageBox
 from ui.components.line_edit import LineEdit
 from ui.components.button import Button
 
@@ -9,15 +10,20 @@ class Worker(QThread):
     def __init__(self, config, username, password, url):
         super().__init__()
         self.config = config
+        self.config.connect_signal.connect(self.emit_signal)
         self.username = username
         self.password = password
         self.url = url
 
-    finished_signal = Signal(bool)
+    finished_signal = Signal(int, str)
 
     def run(self):
         self.config.connect_to_existing_jenkins(self.username, self.password, self.url)
-        self.finished_signal.emit(True)
+        # self.finished_signal.emit(status)
+        
+    def emit_signal(self, status, msg):
+        print(msg)
+        self.finished_signal.emit(status, msg)
 
 
 class ConnectToServerFormView(QWidget):
@@ -71,9 +77,10 @@ class ConnectToServerFormView(QWidget):
         outer_layout.addWidget(self._label)
         outer_layout.addWidget(self._form_widget)
         self.setLayout(outer_layout)
+        self._message_box = MessageBox()
 
     # Signal which send the username and password to MainWindow
-    form_signal = Signal(str, str, bool)
+    finished_signal = Signal(int, str)
 
     def check_input(self):
         username = self._username_line_edit.text().strip()
@@ -85,4 +92,15 @@ class ConnectToServerFormView(QWidget):
     def next_button_action(self):
         self.worker = Worker(self._configurator, self._username_line_edit.text(), self._password_line_edit.text(), self._url_line_edit.text())
         self.worker.start()
-        # self.form_signal.emit(self._username_line_edit.text(), self._password_line_edit.text(), self._url_line_edit.text())
+        self.worker.finished_signal.connect(self.finish_connect)
+
+    def finish_connect(self, status, msg):
+        if status != 1:
+            self._message_box.setIcon(QMessageBox.Icon.Critical)
+            self._message_box.setText(msg)
+            self._message_box.setWindowTitle("Error")
+            # self._message_box.buttonClicked.connect(lambda: self.error_signal.emit(message))
+            self._message_box.exec()
+
+        self.finished_signal.emit(status, msg)
+        self.close()
