@@ -115,17 +115,28 @@ class ItemsView(QWidget):
             self._server_list.appendRow(server_item)
 
     def update_jobs_table(self):
-        # Clear contents first
-        self._jobs_table.setRowCount(0)
+        # Get current contents first
+        current_rows = []
+        for row in range(self._jobs_table.rowCount()):
+            current_row = []
+            for col in range(self._jobs_table.columnCount()):
+                item = self._jobs_table.item(row, col)
+                if item is not None:
+                    current_row.append(item.text())
+                else:
+                    current_row.append(None)
+            current_rows.append(current_row)
 
         # Populate the table with job data from the current server
         jobs = self._configurator.load_jobs()
-        # print(self._configurator.load_jobs())
         for row_index, job_data in enumerate(jobs):
-            self._jobs_table.insertRow(row_index)
-            for col_index, col_data in enumerate(job_data):
-                item = QTableWidgetItem(col_data)
-                self._jobs_table.setItem(row_index, col_index, item)
+            if job_data not in current_rows:
+                job_titles = [x[0] for x in current_rows]
+                if job_data[0] not in job_titles:
+                    self._jobs_table.insertRow(row_index)
+                for col_index, col_data in enumerate(job_data):
+                    item = QTableWidgetItem(col_data)
+                    self._jobs_table.setItem(row_index, col_index, item)
 
     def set_new_current_server(self):
         current_index = self._server_list_view.selectionModel().currentIndex()
