@@ -1,5 +1,5 @@
 from PySide6 import QtGui, QtCore
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QSpacerItem, QSizePolicy
 from ui.views.create_job_form import CreateJobFormView
 from ui.components.button import Button
@@ -24,11 +24,7 @@ class ItemsView(QWidget):
 
         self._server_list_view = ListView()
         self._server_list = QtGui.QStandardItemModel()
-        for server in self._configurator.get_all_servers():
-            server_item = QtGui.QStandardItem(server.get_url())
-            server_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            server_item.setEditable(False)
-            self._server_list.appendRow(server_item)
+        self.update_servers_list()
         self._server_list_view.setModel(self._server_list)
         selection_model = self._server_list_view.selectionModel()
         selection_model.selectionChanged.connect(self.set_new_current_server)
@@ -80,18 +76,17 @@ class ItemsView(QWidget):
         self._buttons_container.setLayout(self._buttons_container_layout)
 
         self._add_job_button = Button("Create Job")
-        # self._add_job_button_layout = QHBoxLayout()
-        # self._add_job_button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-        # self._add_job_button_layout.addWidget(self._add_job_button)
         self._add_job_button.clicked.connect(self.show_create_job_view)
 
         self._connect_to_server_button = Button("Connect to Server")
-        # self._connect_to_server_button_layout = QHBoxLayout()
-        # self._connect_to_server_button_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        # self._connect_to_server_button_layout.addWidget(self._connect_to_server_button)
         self._connect_to_server_button.clicked.connect(self.show_connect_to_server_view)
 
         self._buttons_container_layout.addWidget(self._connect_to_server_button)
+        # self._configurator.get_all_servers()
+        if self._configurator.get_server_by_url("http://127.0.0.1:8080") is not None and self._configurator.get_server_by_url("http://localhost:8080") is not None:
+            self._fresh_install_button = Button("Fresh Install")
+            self._fresh_install_button.clicked.connect(lambda: self.fresh_install_signal.emit(True))
+            self._buttons_container_layout.addWidget(self._fresh_install_button)
         self._buttons_container_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred))
         self._buttons_container_layout.addWidget(self._add_job_button)
 
@@ -108,6 +103,16 @@ class ItemsView(QWidget):
         self._view_layout = QHBoxLayout()
         self._view_layout.addWidget(self._splitter)
         self.setLayout(self._view_layout)
+    
+    fresh_install_signal = Signal(bool)
+
+    def update_servers_list(self):
+        self._server_list.clear()
+        for server in self._configurator.get_all_servers():
+            server_item = QtGui.QStandardItem(server.get_url())
+            server_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            server_item.setEditable(False)
+            self._server_list.appendRow(server_item)
 
     def update_jobs_table(self):
         # Clear contents first
@@ -154,3 +159,9 @@ class ItemsView(QWidget):
 
     def show_connect_to_server_view(self):
         self.connect_to_server_form = ConnectToServerFormView(self._configurator)
+        self.connect_to_server_form.finished_signal.connect(self.update_servers)
+
+    def update_servers(self, status, msg):
+        if status == 1:
+            self.update_servers_list()
+            self.set_new_current_server()

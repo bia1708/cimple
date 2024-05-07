@@ -46,10 +46,11 @@ class PersistentRepository():
 
     def close(self):
         self.write_to_file()
-        
+
     def get_server_by_url(self, url):
         for server in self.__items:
             if server.get_url() == url:
                 return server
+        return None
     # def get_all_serialized(self):
     #     return [server.serialize() for server in self.__items]
