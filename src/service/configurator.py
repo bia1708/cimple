@@ -12,16 +12,21 @@ class Configurator(QObject):
         self.__instances = PersistentRepository("../artifacts/data.bin")
         self.__current_server = self.__instances.get_current()
 
+    connect_signal = Signal(int, str)
+
     def connect_to_existing_jenkins(self, username, password, jenkins_url):
         for instance in self.__instances.get_all():
             if instance.get_url() == jenkins_url:
                 self.__current_server = instance
                 self.__instances.update_current(instance)
+                self.connect_signal.emit(-1, "Server already exists!")
                 return
         pat = self.get_pat(username, password, jenkins_url)
-        jnlp_file = self.get_jnlp(username, password, jenkins_url)
-        # print("JNLP FILE: " + jnlp_file)
-        self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
+        if pat is not None:
+            jnlp_file = self.get_jnlp(username, password, jenkins_url)
+            if jnlp_file is not None:
+                self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
+                self.connect_signal.emit(1, "Successfully connected to server!")
 
     install_signal = Signal(int, str)
 
@@ -115,11 +120,14 @@ class Configurator(QObject):
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
 
             output = result.stdout.strip()
-            token = output.split(":")[1]
             exit_code = result.returncode
             if exit_code != 0:
                 self.install_signal.emit(-1, "Failed to install Jenkins")
-            return token
+                self.connect_signal.emit(-1, "Failed to authenticate you!")
+                return None
+            else:
+                token = output.split(":")[1]
+                return token
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             self.install_signal.emit(-1, "Failed to generate personal access token")
@@ -133,11 +141,14 @@ class Configurator(QObject):
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
 
             output = result.stdout.strip()
-            jnlp_file = output.split(":")[1]
             exit_code = result.returncode
             if exit_code != 0:
                 self.install_signal.emit(-1, "Failed to install Jenkins")
-            return jnlp_file
+                self.connect_signal.emit(-1, "Failed to authenticate you!")
+                return None
+            else:
+                jnlp_file = output.split(":")[1]
+                return jnlp_file
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             self.install_signal.emit(-1, "Failed to get Jenkins jar")
@@ -191,3 +202,6 @@ class Configurator(QObject):
 
     def close(self):
         self.__instances.close()
+        
+    def remove(self, server):
+        self.__instances.delete(self.__instances.get_server_by_url(server))

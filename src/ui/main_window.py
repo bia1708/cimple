@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from service.configurator import Configurator
+from ui.views.connect_to_server_form import ConnectToServerFormView
 from ui.components.button import Button
 from ui.views.install_form import InstallFormView
 from ui.views.install_progress import InstallProgressView
@@ -30,6 +31,9 @@ class MainWindow(QMainWindow):
         # self._main_layout = QVBoxLayout()
         # self._stacked_widget = QStackedWidget()
         # self._main_layout.addWidget(self._stacked_widget)
+        # self.startup_ui()
+        # self.__configurator.remove("http://127.0.0.1:8080")
+        # self.__configurator.remove("http://localhost:8080")
         if self.__configurator.get_number_of_servers() == 0:
             self.startup_ui()
         else:
@@ -45,6 +49,14 @@ class MainWindow(QMainWindow):
         # self._stacked_widget.addWidget(install_form_view)
         # self.animate_transition(install_form_view)
         # self._stacked_widget.setCurrentWidget(install_form_view)
+
+    def switch_to_connect_form(self):
+        self.connect_to_server_view = ConnectToServerFormView(self.__configurator)
+        self.connect_to_server_view.finished_signal.connect(self.finish_connect)
+
+    def finish_connect(self, status, msg):
+        if status == 1:
+            self.switch_to_list_view()
 
     def switch_to_install_progress(self, username, password, proxy):
         print(username, password, proxy)
@@ -88,6 +100,7 @@ class MainWindow(QMainWindow):
         btn1 = Button('Connect to Existing Instance', buttons_widget)
         btn2 = Button('Fresh Install', buttons_widget)
 
+        btn1.pressed.connect(self.switch_to_connect_form)
         btn2.pressed.connect(self.switch_to_install_form)
 
         buttons_widget.layout().addWidget(btn1)
