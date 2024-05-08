@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEd
 from service.job_configurator import JobConfigurator
 from ui.components.line_edit import LineEdit
 from ui.components.button import Button
+import os
 
 
 class JobCreationWorker(QThread):
@@ -81,6 +82,8 @@ class CreateJobFormView(QWidget):
         self._token_line_edit.textChanged.connect(self.check_input)
 
         self._checkbox = QCheckBox("Enable GitHub Job Status")
+        if os.path.isfile("/etc/systemd/system/smee.service") is False:
+            self._checkbox.setEnabled(False)
         self._checkbox.stateChanged.connect(lambda: (
                 self._next_button.setEnabled(False),
                 self.check_input()

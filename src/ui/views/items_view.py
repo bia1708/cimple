@@ -8,9 +8,10 @@ from ui.components.table import Table
 from ui.components.list_view import ListView
 from ui.components.link_event import LinkEvent
 from ui.views.connect_to_server_form import ConnectToServerFormView
+import os
 
 
-class Worker(QThread):
+class RunJobWorker(QThread):
     def __init__(self, config, job):
         super().__init__()
         self.config = config
@@ -21,6 +22,18 @@ class Worker(QThread):
     def run(self):
         job_configurator = JobConfigurator(self.config.get_current_server())
         job_configurator.run_job(self.job)
+        self.finished_signal.emit(True)
+
+
+class EnableProxyWorker(QThread):
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+
+    finished_signal = Signal(bool)
+
+    def run(self):
+        self.config.enable_proxy()
         self.finished_signal.emit(True)
 
 
@@ -104,10 +117,14 @@ class ItemsView(QWidget):
 
         self._buttons_container_layout.addWidget(self._connect_to_server_button)
         # self._configurator.get_all_servers()
-        if self._configurator.get_server_by_url("http://127.0.0.1:8080") is not None and self._configurator.get_server_by_url("http://localhost:8080") is not None:
+        if self._configurator.get_server_by_url("http://127.0.0.1:8080") is None and self._configurator.get_server_by_url("http://localhost:8080") is None:
             self._fresh_install_button = Button("Fresh Install")
             self._fresh_install_button.clicked.connect(lambda: self.fresh_install_signal.emit(True))
             self._buttons_container_layout.addWidget(self._fresh_install_button)
+        if os.path.isfile("/etc/systemd/system/smee.service") is False and (self._configurator.get_current_server().get_url() == "http://127.0.0.1:8080" or self._configurator.get_current_server().get_url() == "http://localhost:8080"):
+            self._enable_proxy_button = Button("Enable Proxy")
+            self._enable_proxy_button.clicked.connect(self.enable_proxy)
+            self._buttons_container_layout.addWidget(self._enable_proxy_button)
         self._buttons_container_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred))
         self._buttons_container_layout.addWidget(self._run_job_button)
         self._buttons_container_layout.addWidget(self._add_job_button)
@@ -142,8 +159,20 @@ class ItemsView(QWidget):
             row_items = [self._jobs_table.item(selected_row, col).text() for col in range(self._jobs_table.columnCount())]
 
             print("Selected Row Items:", row_items)
-            self.worker = Worker(self._configurator, row_items[0])
-            self.worker.start()
+            self.job_worker = RunJobWorker(self._configurator, row_items[0])
+            self.job_worker.finished_signal.connect(lambda: self.job_worker.terminate())
+            self.job_worker.start()
+
+    def enable_proxy(self):
+        self.setCursor(Qt.CursorShape.BusyCursor)
+        self.proxy_worker = EnableProxyWorker(self._configurator)
+        self.proxy_worker.finished_signal.connect(self.finish_enable_proxy)
+        self.proxy_worker.start()
+
+    def finish_enable_proxy(self):
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        self.proxy_worker.terminate()
+        self._enable_proxy_button.hide()
 
     def update_servers_list(self):
         self._server_list.clear()
@@ -202,10 +231,6 @@ class ItemsView(QWidget):
 
     def show_create_job_view(self):
         self.create_job_form = CreateJobFormView(self._configurator.get_current_server())
-        # create_job_form.show()
-        # job_window = QMainWindow()
-        # job_window.setCentralWidget(create_job_form)
-        # job_window.show()
 
     def show_connect_to_server_view(self):
         self.connect_to_server_form = ConnectToServerFormView(self._configurator)

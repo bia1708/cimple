@@ -99,15 +99,16 @@
                             reportTitles: ''
                         ])
                     }}
-                    withCredentials([usernamePassword(credentialsId: "git_pat_\\${{REPO_NAME}}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {{
+                    withCredentials([usernamePassword(credentialsId: "git_pat_\\${{REPO_NAME}}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'), usernamePassword(credentialsId: "jenkins_token", usernameVariable: 'JENKINS_USER', passwordVariable: 'JENKINS_API_TOKEN')]) {{
                         script {{
-                            env.CONSOLE_LOG = Jenkins.getInstance().getItemByFullName(env.JOB_NAME).getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER)).logFile
+                            env.CONSOLE_OUTPUT = "\\${{env.BUILD_URL}}consoleText"
                             sh \'\'\'
                                 #!/bin/bash
-                                cp \\$CONSOLE_LOG output.md
+                                wget --auth-no-challenge --user=\\$JENKINS_USER --password=\\$JENKINS_API_TOKEN -O consoleOutput \\${{CONSOLE_OUTPUT}}
+                                cat consoleOutput | grep -vi pipeline > output.txt
                                 echo \\$PASSWORD > git_token
                                 gh auth login --with-token < git_token
-                                export GIST_PATH=\\$(gh gist create -d "Build $BUILD_TAG console output" output.md | grep -o 'https://[^\"]*')
+                                export GIST_PATH=\\$(gh gist create -d "Build \\$BUILD_TAG console output" output.txt | grep -o 'https://[^\"]*')
 
                                 # Add GIST_PATH to the list of Environmental Variables
                                 if [ "\\$(cat properties_file.props | grep GIST_PATH)" = "" ]; then
