@@ -31,7 +31,7 @@ class JobConfigurator(QObject):
 
         script_path = "./scripts/job_configuration/create_job.sh"
         try:
-            command = ["/bin/sudo", script_path, git_repo.get_repo_name(), self.__server.get_jnlp_file(), self.__server.get_url(), self.__server.get_username(), self.__server.get_token()]
+            command = ["bash", script_path, git_repo.get_repo_name(), self.__server.get_jnlp_file(), self.__server.get_url(), self.__server.get_username(), self.__server.get_token()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
@@ -103,6 +103,20 @@ class JobConfigurator(QObject):
         ini_file = open("../artifacts/jenkins_jobs.ini", "w")
         ini_file.write(text)
         ini_file.close()
+
+    def run_job(self, job):
+        script_path = "./scripts/job_configuration/run_job.sh"
+
+        try:
+            command = ["bash", script_path, self.__server.get_jnlp_file(), self.__server.get_username(), self.__server.get_token(),
+                       self.__server.get_url(), job]
+            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
+            output = result.stderr.strip()
+            # print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
 
     auth_signal = Signal(int, str)
 
