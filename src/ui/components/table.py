@@ -18,6 +18,7 @@ class Table(QTableWidget):
                 background-color: #2E2E2E;
                 color: white;
                 border: none;
+                padding:5px;
             }
 
             QTableWidget QHeaderView::section {

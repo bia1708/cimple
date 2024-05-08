@@ -1,12 +1,27 @@
 from PySide6 import QtGui, QtCore
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import Qt, QTimer, Signal, QThread
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QSpacerItem, QSizePolicy
+from service.job_configurator import JobConfigurator
 from ui.views.create_job_form import CreateJobFormView
 from ui.components.button import Button
 from ui.components.table import Table
 from ui.components.list_view import ListView
 from ui.components.link_event import LinkEvent
 from ui.views.connect_to_server_form import ConnectToServerFormView
+
+
+class Worker(QThread):
+    def __init__(self, config, job):
+        super().__init__()
+        self.config = config
+        self.job = job
+
+    finished_signal = Signal(bool)
+
+    def run(self):
+        job_configurator = JobConfigurator(self.config.get_current_server())
+        job_configurator.run_job(self.job)
+        self.finished_signal.emit(True)
 
 
 class ItemsView(QWidget):
@@ -62,12 +77,13 @@ class ItemsView(QWidget):
         # Create a table to display the list of jobs for the current server
         self._jobs_table = Table()  # Rows and columns
         self._jobs_table.setHorizontalHeaderLabels(["My Jobs", "No. of Builds", "Status", "GitHub Status"])
+        self._jobs_table.selectionModel().selectionChanged.connect(self.table_selection_event)
 
         self.update_jobs_table()
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_jobs_table)
-        self.timer.start(2000)
+        self.timer.start(3000)
 
         # Create job button + Connect to server button
         self._buttons_container = QWidget()
@@ -81,6 +97,11 @@ class ItemsView(QWidget):
         self._connect_to_server_button = Button("Connect to Server")
         self._connect_to_server_button.clicked.connect(self.show_connect_to_server_view)
 
+        self._run_job_button = Button("Run Job")
+        self._run_job_button.setContentsMargins(0, 0, 0, 0)
+        self._run_job_button.setEnabled(False)
+        self._run_job_button.clicked.connect(self.run_job)
+
         self._buttons_container_layout.addWidget(self._connect_to_server_button)
         # self._configurator.get_all_servers()
         if self._configurator.get_server_by_url("http://127.0.0.1:8080") is not None and self._configurator.get_server_by_url("http://localhost:8080") is not None:
@@ -88,6 +109,7 @@ class ItemsView(QWidget):
             self._fresh_install_button.clicked.connect(lambda: self.fresh_install_signal.emit(True))
             self._buttons_container_layout.addWidget(self._fresh_install_button)
         self._buttons_container_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred))
+        self._buttons_container_layout.addWidget(self._run_job_button)
         self._buttons_container_layout.addWidget(self._add_job_button)
 
         # Right column: Title label, table with jobs, create job button
@@ -103,8 +125,25 @@ class ItemsView(QWidget):
         self._view_layout = QHBoxLayout()
         self._view_layout.addWidget(self._splitter)
         self.setLayout(self._view_layout)
-    
+
     fresh_install_signal = Signal(bool)
+
+    def table_selection_event(self, selected, deselected):
+        if selected.indexes():
+            self._run_job_button.setEnabled(True)
+        else:
+            self._run_job_button.setEnabled(False)
+
+    def run_job(self):
+        selected_indexes = self._jobs_table.selectionModel().selectedRows()
+
+        if selected_indexes:
+            selected_row = selected_indexes[0].row()  # Get the index of the selected row
+            row_items = [self._jobs_table.item(selected_row, col).text() for col in range(self._jobs_table.columnCount())]
+
+            print("Selected Row Items:", row_items)
+            self.worker = Worker(self._configurator, row_items[0])
+            self.worker.start()
 
     def update_servers_list(self):
         self._server_list.clear()

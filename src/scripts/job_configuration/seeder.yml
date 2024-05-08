@@ -16,9 +16,6 @@
                     steps {{
                         jobDsl scriptText: '''
                                                 pipelineJob("${{REPO_NAME}}"){{
-                            triggers {{
-                                githubPush()
-                            }}
                             environmentVariables {{
                                 env('REPO', "${{REPO}}")
                                 env('REPO_NAME', "${{REPO_NAME}}")
@@ -28,19 +25,6 @@
                                 cps {{
                                     sandbox()
                                     script("""
-        void setCommitBuildStatus(String backrefLink, String commitSha) {{
-            echo env.REPO
-            step([
-                \\$class: "GitHubCommitStatusSetter",
-                reposSource: [\\$class: "ManuallyEnteredRepositorySource", url: "\\${{env.REPO}}"],
-                commitShaSource: [\\$class: 'ManuallyEnteredShaSource', sha: "\\${{commitSha}}"],
-                errorHandlers: [[\\$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
-                statusBackrefSource: [\\$class: "ManuallyEnteredBackrefSource", backref: "\\${{backrefLink}}"],
-                statusResultSource: [\\$class: 'DefaultStatusResultSource']
-            ]);
-        }}
-
-
         pipeline {{
             agent any
 
@@ -115,30 +99,6 @@
                             reportName: 'pytest Output',
                             reportTitles: ''
                         ])
-                    }}
-                    withCredentials([usernamePassword(credentialsId: "git_pat_\\${{REPO_NAME}}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {{
-                        script {{
-                            env.CONSOLE_LOG = Jenkins.getInstance().getItemByFullName(env.JOB_NAME).getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER)).logFile
-                            sh \'\'\'
-                                #!/bin/bash
-                                cp \\$CONSOLE_LOG output.md
-                                echo \\$PASSWORD > git_token
-                                gh auth login --with-token < git_token
-                                export GIST_PATH=\\$(gh gist create -d "Build $BUILD_TAG console output" output.md | grep -o 'https://[^\"]*')
-
-                                # Add GIST_PATH to the list of Environmental Variables
-                                if [ "\\$(cat properties_file.props | grep GIST_PATH)" = "" ]; then
-                                    echo "GIST_PATH=\\$GIST_PATH" >> properties_file.props
-                                else
-                                    sed -i "s,GIST_PATH=.*,GIST_PATH=\\$GIST_PATH," properties_file.props
-                                fi
-                                cat properties_file.props
-                            \'\'\'
-                            def props = readProperties file: 'properties_file.props'
-                            env.NEW_GIST = props.GIST_PATH
-                            echo "\\${{NEW_GIST}}, \\${{GIT_COMMIT}}, \\${{REPO}}"
-                            setCommitBuildStatus("\\${{NEW_GIST}}", env.GIT_COMMIT)
-                        }}
                     }}
                 }}
             }}
