@@ -24,6 +24,7 @@ class Configurator(QObject):
         pat = self.get_pat(username, password, jenkins_url)
         if pat is not None:
             jnlp_file = self.get_jnlp(username, password, jenkins_url)
+            self.add_jenkins_credentials(username, pat, jnlp_file, jenkins_url)
             if jnlp_file is not None:
                 self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
                 self.connect_signal.emit(1, "Successfully connected to server!")
@@ -47,6 +48,7 @@ class Configurator(QObject):
         if exit_code == 0:
             self.install_signal.emit(20, "Installed Jenkins successfully\nGenerating personal access token...\n")
             token = self.get_pat(username, password, "http://localhost:8080")
+            self.add_jenkins_credentials(username, token, "../artifacts/jenkins-cli.jar", "http://localhost:8080")
             self.install_signal.emit(25, "Generated personal access token\nInstalling plugins...\n")
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
             self.install_plugins()
@@ -152,6 +154,20 @@ class Configurator(QObject):
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             self.install_signal.emit(-1, "Failed to get Jenkins jar")
+            return None, e.returncode
+
+    def add_jenkins_credentials(self, username, token, jnlp, url):
+        script_path = "./scripts/server_configuration/add_jenkins_credentials.sh"
+
+        try:
+            command = ["bash", script_path, username, token, jnlp, url]
+            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+
+            output = result.stdout.strip()
+            print(output)
+            exit_code = result.returncode
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
             return None, e.returncode
 
     def add_jenkins_instance(self, url, username, token, jnlp_file):
