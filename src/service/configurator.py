@@ -2,15 +2,26 @@ import requests
 import os
 import subprocess
 from domain.server import Server
+from repository.repository import Repository
 from repository.persistent_repository import PersistentRepository
 from PySide6.QtCore import QObject, Signal
 
 
 class Configurator(QObject):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # Create the singleton instance
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self):
-        super().__init__()
-        self.__instances = PersistentRepository("../artifacts/data.bin")
-        self.__current_server = self.__instances.get_current()
+        if not hasattr(self, 'initialized'):  # To avoid re-initialization
+            super().__init__()
+            self.initialized = True
+            self.__instances = PersistentRepository("../artifacts/data.bin")
+            self.__current_server = self.__instances.get_current()
 
     connect_signal = Signal(int, str)
 
@@ -209,6 +220,9 @@ class Configurator(QObject):
 
     def get_current_server(self):
         return self.__current_server
+
+    def get_servers_iterator(self):
+        return self.__instances.create_iterator()
 
     def get_all_servers(self):
         return self.__instances.get_all()

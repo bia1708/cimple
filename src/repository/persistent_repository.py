@@ -1,8 +1,28 @@
 import pickle
 import os
+from repository.repository import Repository
 
-class PersistentRepository():
+
+class Iterator:
+    def __init__(self, collection):
+        self.collection = collection
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index < len(self.collection):
+            result = self.collection[self.index]
+            self.index += 1
+            return result
+        else:
+            raise StopIteration
+
+
+class PersistentRepository(Repository):
     def __init__(self, filename):
+        super().__init__()
         if not os.path.exists("../artifacts/"):
             os.makedirs("../artifacts/")
         self.__filename = filename
@@ -29,6 +49,9 @@ class PersistentRepository():
     def update_current(self, item):
         self.__items.remove(item)
         self.__items.insert(0, item)
+
+    def create_iterator(self):
+        return Iterator(self.__items)
 
     def get_current(self):
         return self.__items[0] if len(self.__items) > 0 else None

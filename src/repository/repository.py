@@ -4,14 +4,13 @@ class Repository:
         self.__items = []
 
     def add(self, item):
-        self.__items.append(item)
+        pass
 
     def delete(self, item):
-        self.__items.remove(item)
+        pass
 
     def update(self, old_item, item):
-        self.__items.remove(old_item)
-        self.__items.append(item)
+        pass
 
     def get_all(self):
-        return self.__items
+        pass

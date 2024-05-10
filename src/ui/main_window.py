@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
         # self.switch_to_list_view()
         # self.__configurator.remove("http://127.0.0.1:8080")
         # self.__configurator.remove("mock-url/")
+        print(self.__configurator.get_all_servers())
         # self.__configurator.remove("http://localhost:8080")
         if self.__configurator.get_number_of_servers() == 0:
             self.startup_ui()
