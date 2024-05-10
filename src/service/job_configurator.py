@@ -3,6 +3,7 @@ import os
 from PySide6.QtCore import QObject, Signal
 from repository.repository import Repository
 from domain.git_repo import Git_Repo
+from domain.job import *
 
 class JobConfigurator(QObject):
     def __init__(self, server):
@@ -13,12 +14,17 @@ class JobConfigurator(QObject):
     def create_job(self, git_repo, git_status):
         # os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
         # self.parse_repo(git_repo)
+        job_type = self.get_repo_language(git_repo)
         self.create_jenkins_jobs_ini()
-        
-        if git_status is True:
-            pipeline_script_file = open("./scripts/job_configuration/generate_job_python_with_git.groovy", "r")
-        else:
-            pipeline_script_file = open("./scripts/job_configuration/generate_job_python.groovy", "r")
+
+        new_job = JobFactory.create_job(job_type, git_repo, git_status)
+        jenkinsfile = new_job.get_jenkinsfile()
+        pipeline_script_file = open(jenkinsfile, "r")
+
+        # if git_status is True:
+        #     pipeline_script_file = open("./scripts/job_configuration/generate_job_python_with_git.groovy", "r")
+        # else:
+        #     pipeline_script_file = open("./scripts/job_configuration/generate_job_python.groovy", "r")
         pipeline_script = pipeline_script_file.read()
         pipeline_script_file.close()
         with open("./scripts/job_configuration/seeder_template.yml") as seeder_template_file:
@@ -48,8 +54,6 @@ class JobConfigurator(QObject):
         # self.__jobs.add(job)
 
     def init_gh(self, git_pat, git_username, repo_name, username, pat):
-        # TODO: MAKE SURE YOU ASK FOR GIST ACCESS: https://cli.github.com/manual/gh_auth_login
-        # TODO: maybe validate username+token based on gh auth status output
         script_path = "./scripts/job_configuration/git_auth.sh"
 
         try:
@@ -82,6 +86,24 @@ class JobConfigurator(QObject):
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
+            # print(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+            return None, e.returncode
+
+    def get_repo_language(self, git_repo):
+        script_path = "./scripts/job_configuration/get_repo_language.sh"
+
+        try:
+            command = ["bash", script_path, git_repo.get_git_username(), git_repo.get_repo_name()]
+            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+
+            output = result.stdout.strip()
+            exit_code = result.returncode
+            if exit_code == 0:
+                language = output.split(":")[1].replace("\"", "")
+                return language
+            return None
             # print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
@@ -181,7 +203,7 @@ class JobConfigurator(QObject):
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
-        
+
         if exit_code == 0:
             self.auth_signal.emit(0, "Repository validated.")
             return True

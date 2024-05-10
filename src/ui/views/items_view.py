@@ -176,7 +176,8 @@ class ItemsView(QWidget):
 
     def update_servers_list(self):
         self._server_list.clear()
-        for server in self._configurator.get_all_servers():
+        servers = self._configurator.get_servers_iterator()
+        for server in servers:
             server_item = QtGui.QStandardItem(server.get_url())
             server_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             server_item.setEditable(False)
