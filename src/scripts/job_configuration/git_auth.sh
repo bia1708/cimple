@@ -11,7 +11,6 @@ repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get
 
 # Not auth output:
 # You are not logged into any GitHub hosts. Run gh auth login to authenticate.
-
 echo $git_token > ../artifacts/token.txt
 output=$(gh auth login --with-token < ../artifacts/token.txt 2>&1 | grep error)
 rm ../artifacts/token.txt

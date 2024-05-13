@@ -1,4 +1,7 @@
                         pipelineJob("${{REPO_NAME}}"){{
+                            properties {{
+                                githubProjectUrl("${{REPO}}")
+                            }}
                             triggers {{
                                 githubPush()
                             }}
