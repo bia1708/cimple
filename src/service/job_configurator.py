@@ -49,7 +49,8 @@ class JobConfigurator(QObject):
     def init_repo(self, repo_name, git_username, git_pat, git_status):
         git_repo = Git_Repo(repo_name, git_username, git_pat)
         self.init_gh(git_pat, git_username, repo_name, self.__server.get_username(), self.__server.get_token())
-        # self.setup_webhooks(git_repo)
+        if git_status is True:
+            self.setup_webhooks(git_repo)
         job = self.create_job(git_repo, git_status)
         # self.__jobs.add(job)
 
@@ -70,7 +71,7 @@ class JobConfigurator(QObject):
         script_path = "./scripts/job_configuration/enable_webhooks.sh"
 
         try:
-            command = ["bash", script_path, git_repo.get_repo_name(), git_repo.get_git_username(), self.__server.get_url()]
+            command = ["/usr/bin/sudo", script_path, git_repo.get_repo_name(), git_repo.get_git_username(), git_repo.get_git_pat(), self.__server.get_token(), self.__server.get_username()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
