@@ -176,7 +176,7 @@ class ItemsView(QWidget):
 
     def update_servers_list(self):
         self._server_list.clear()
-        servers = self._configurator.get_servers_iterator()
+        servers = self._configurator.get_all_servers()
         for server in servers:
             server_item = QtGui.QStandardItem(server.get_url())
             server_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -206,6 +206,18 @@ class ItemsView(QWidget):
                 for col_index, col_data in enumerate(job_data):
                     item = QTableWidgetItem(col_data)
                     self._jobs_table.setItem(row_index, col_index, item)
+    
+    def update_jobs_table_for_new_server(self):
+        # Clear contents first
+        self._jobs_table.setRowCount(0)
+
+        jobs = self._configurator.load_jobs()
+        # print(self._configurator.load_jobs())
+        for row_index, job_data in enumerate(jobs):
+            self._jobs_table.insertRow(row_index)
+            for col_index, col_data in enumerate(job_data):
+                item = QTableWidgetItem(col_data)
+                self._jobs_table.setItem(row_index, col_index, item)
 
     def set_new_current_server(self):
         current_index = self._server_list_view.selectionModel().currentIndex()
@@ -215,6 +227,7 @@ class ItemsView(QWidget):
             current_item = self._server_list.itemFromIndex(current_index)
             self._configurator.set_current_server(current_item.text())
             self.update_current_server_label()
+            self.update_jobs_table_for_new_server()
 
     def update_current_server_label(self):
         link = "<a href=\"" + self._configurator.get_current_server().get_url() + "\" style='color: #81B622; text-decoration: none; font-size:22px;'>" + self._configurator.get_current_server().get_url() + "</a>"
