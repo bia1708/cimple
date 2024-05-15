@@ -39,6 +39,9 @@ echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
  | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
    create-credentials-by-xml system::system::jenkins _
 
+java -jar $jnlp -auth $username:$token -s $url \
+delete-credentials system::system::jenkins _ gh_token
+
 echo "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> \
   <scope>GLOBAL</scope>
   <id>gh_token</id>
@@ -48,8 +51,8 @@ echo "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> \
  | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
    create-credentials-by-xml system::system::jenkins _
 
-curl --user "$username:$token" --data-urlencode \
-  "script=$(< ./scripts/job_configuration/add_server.groovy)" $url/scriptText
+# curl --user "$username:$token" --data-urlencode \
+#   "script=$(< ./scripts/job_configuration/add_server.groovy)" $url/scriptText
 # echo "<?xml version='1.1' encoding='UTF-8'?>
 # <github-plugin-configuration plugin="github@1.37.3">
 #   <configs>

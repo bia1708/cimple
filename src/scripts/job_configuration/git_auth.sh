@@ -5,6 +5,8 @@ git_username=$2
 repo=$3
 username=$4
 token=$5
+jnlp=$6
+url=$7
 CRUMB=../../aritfacts/cookie
 
 repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get only repo name from repo link
@@ -22,6 +24,9 @@ fi
 
 gh auth status
 
+java -jar $jnlp -auth $username:$token -s $url \
+delete-credentials system::system::jenkins _ git_pat_$repo_name
+
 echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
   <scope>GLOBAL</scope>
   <id>git_pat_$repo_name</id>
@@ -30,5 +35,5 @@ echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
   <description>git_pat_for_$repo_name</description>
   <usernameSecret>false</usernameSecret>
 </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" \
- | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
+ | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s $url  \
    create-credentials-by-xml system::system::jenkins _
