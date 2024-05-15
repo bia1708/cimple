@@ -31,20 +31,6 @@
             agent any
 
             stages {{
-                stage("Set Environment") {{
-                    steps {{
-                            script {{
-                            //def props = readProperties  file:"\\${{WORKSPACE}}/properties_file.props"
-                            echo env.REPO
-                            echo env.REPO_NAME
-                            //env.REPO= props["REPO"]
-                            //env.REPO_NAME = props["REPO_NAME"]
-                            //env.REQUIREMENTS = props["REQUIREMENTS"]
-                            //env.INSTRUCTIONS = props["INSTRUCTIONS"]
-                        }}
-                    }}
-                }}
-
                 stage("Checkout") {{
                     steps {{
                         script {{

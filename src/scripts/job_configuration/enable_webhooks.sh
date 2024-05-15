@@ -6,6 +6,7 @@ git_token=$3
 token=$4
 username=$5
 url=$6
+jnlp=$7
 
 echo $git_token > ../artifacts/token.txt
 output=$(gh auth login --with-token < ../artifacts/token.txt 2>&1 | grep error)
@@ -51,8 +52,9 @@ echo "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> \
  | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
    create-credentials-by-xml system::system::jenkins _
 
-# curl --user "$username:$token" --data-urlencode \
-#   "script=$(< ./scripts/job_configuration/add_server.groovy)" $url/scriptText
+curl --user "$username:$token" --data-urlencode \
+  "script=$(< ./scripts/job_configuration/add_server.groovy)" $url/scriptText
+
 # echo "<?xml version='1.1' encoding='UTF-8'?>
 # <github-plugin-configuration plugin="github@1.37.3">
 #   <configs>
