@@ -186,6 +186,20 @@ class ItemsView(QWidget):
     def update_jobs_table(self):
         # Get current contents first
         current_rows = []
+        jobs = self._configurator.load_jobs()
+
+        # Filter out rows that need to be removed
+        rows_to_remove = []
+        job_titles = [x[0] for x in jobs]
+        for row in range(self._jobs_table.rowCount()):
+            item = self._jobs_table.item(row, 0)
+            if item is not None and item.text() not in job_titles:
+                rows_to_remove.append(row)
+
+        # Remove rows from the table
+        for row_index in reversed(rows_to_remove):
+            self._jobs_table.removeRow(row_index)
+
         for row in range(self._jobs_table.rowCount()):
             current_row = []
             for col in range(self._jobs_table.columnCount()):
@@ -197,7 +211,6 @@ class ItemsView(QWidget):
             current_rows.append(current_row)
 
         # Populate the table with job data from the current server
-        jobs = self._configurator.load_jobs()
         for row_index, job_data in enumerate(jobs):
             if job_data not in current_rows:
                 job_titles = [x[0] for x in current_rows]
@@ -206,7 +219,7 @@ class ItemsView(QWidget):
                 for col_index, col_data in enumerate(job_data):
                     item = QTableWidgetItem(col_data)
                     self._jobs_table.setItem(row_index, col_index, item)
-    
+
     def update_jobs_table_for_new_server(self):
         # Clear contents first
         self._jobs_table.setRowCount(0)
