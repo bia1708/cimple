@@ -30,3 +30,6 @@ systemctl start jenkins
 curl --user "$username:$pat" --data-urlencode \
   "script=$(< ./scripts/server_configuration/security.groovy)" $url/scriptText
 
+curl --user "$username:$pat" --data-urlencode \
+  "script=$(< ./scripts/server_configuration/url_config.groovy)" $url/scriptText
+
