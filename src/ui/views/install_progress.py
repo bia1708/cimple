@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
 import multiprocessing
+from ui.components.link_event import LinkEvent
 from ui.components.progress_bar import ProgressBar
 from ui.components.message_box import MessageBox
 
@@ -25,7 +26,12 @@ class InstallProgressView(QWidget):
         self._password = password
         self._proxy = proxy
 
+        self._hover_filter = LinkEvent()
+
         self._message_box = MessageBox()
+        self._message_box.setTextFormat(Qt.TextFormat.RichText)
+        self._message_box.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+        self._message_box.installEventFilter(self._hover_filter)
 
         self._heading_label = QLabel("Configuring Jenkins Setup")
         self._heading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -64,18 +70,24 @@ class InstallProgressView(QWidget):
             self.info_label.setText(text)
             if progress == 0 and message == "Setting up proxy...\n":
                 self._heading_label.setText("Configuring Proxy Service")
-            if progress == 100 and self._proxy is not True:
+            if progress == 100:
                 self.worker.terminate()
-                self._message_box.setText("Jenkins setup complete.\nYou can view your Jenkins instance at " +
-                                          "http://localhost:8080/\nClick OK to proceed.")
+
+                link = "<a href=\"http://127.0.0.1:8080\" style='color: #81B622; text-decoration: none; font-size:16px;'>http://127.0.0.1:8080</a>"
+                on_hover_link = "<a href=\"http://127.0.0.1:8080\" style='color: #81B622; text-decoration: underline; font-size:16px;'>http://127.0.0.1:8080</a>"
+                text_with_link = "Jenkins setup complete.\nYou can view your Jenkins instance at " + link + "\nClick OK to proceed."
+                text_with_hover_link = "Jenkins setup complete.\nYou can view your Jenkins instance at " + on_hover_link + "\nClick OK to proceed."
+                self._hover_filter.set_link(text_with_link)
+                self._hover_filter.set_on_hover_link(text_with_hover_link)
+                self._message_box.setText(text_with_link)
                 self._message_box.buttonClicked.connect(lambda: self.change_view_signal.emit("OK"))
                 self._message_box.exec()
-            elif progress == 100 and message == "Proxy setup complete":
-                self.worker.terminate()
-                self._message_box.setText("Setup complete.\nYou can view your Jenkins instance at " +
-                                          "http://localhost:8080/\nClick OK to proceed.")
-                self._message_box.buttonClicked.connect(lambda: self.change_view_signal.emit("OK"))
-                self._message_box.exec()
+            # elif progress == 100 and message == "Proxy setup complete":
+            #     self.worker.terminate()
+            #     self._message_box.setText("Setup complete.\nYou can view your Jenkins instance at " +
+            #                               "http://localhost:8080/\nClick OK to proceed.")
+            #     self._message_box.buttonClicked.connect(lambda: self.change_view_signal.emit("OK"))
+            #     self._message_box.exec()
         else:
             self.worker.terminate()
             self._message_box.setIcon(QMessageBox.Icon.Critical)
