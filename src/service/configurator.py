@@ -193,6 +193,12 @@ class Configurator(QObject):
         jobs = jenkins.get_jobs()
         for job in jobs:
             job_name = job['name']
+            last_build = None
+            try:
+                last_build = jenkins.get_job_info(job_name)['lastBuild']['url']
+            except:
+                pass
+
             try:
                 last_build_number = jenkins.get_job_info(job_name)['lastCompletedBuild']['number']
             except:
@@ -210,7 +216,7 @@ class Configurator(QObject):
                             github_enabled = "ENABLED"
             except:
                 pass
-            jobs_with_info.append([job_name, last_build_number.__str__(), job_result, github_enabled])
+            jobs_with_info.append([job_name, last_build_number.__str__(), job_result, github_enabled, last_build])
 
         return jobs_with_info
 

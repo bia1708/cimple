@@ -217,8 +217,17 @@ class ItemsView(QWidget):
                 if job_data[0] not in job_titles:
                     self._jobs_table.insertRow(row_index)
                 for col_index, col_data in enumerate(job_data):
+                    # if col_index == 3:
+                    #     item = CustomTableWidgetItem(col_data)
+                    #     item.setData(Qt.ItemDataRole.BackgroundRole, job_data[4])
                     item = QTableWidgetItem(col_data)
+                    item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+                    item.setData(Qt.ItemDataRole.BackgroundRole, job_data[4])
+                    # if col_index == 3:
+                    #     tooltip_text = f"Click <a href=\"{job_data[4]}\">here<\a>"
+                    #     item.setToolTip(tooltip_text)
                     self._jobs_table.setItem(row_index, col_index, item)
+                    
 
     def update_jobs_table_for_new_server(self):
         # Clear contents first

@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
 )
 
 from service.configurator import Configurator
+from ui.components.link_event import LinkEvent
+from ui.components.message_box import MessageBox
 from ui.views.connect_to_server_form import ConnectToServerFormView
 from ui.components.button import Button
 from ui.views.install_form import InstallFormView
