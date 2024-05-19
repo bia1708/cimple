@@ -17,4 +17,3 @@ done < "$file"
 
 echo $jnlp $url $username $pat
 java -jar $jnlp -s $url -auth $username:$pat restart
-echo "hereeee"

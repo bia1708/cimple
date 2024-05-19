@@ -25,7 +25,7 @@ class Configurator(QObject):
 
     connect_signal = Signal(int, str)
 
-    def connect_to_existing_jenkins(self, username, password, jenkins_url):
+    def connect_to_existing_jenkins(self, username, password, jenkins_url, plugins):
         for instance in self.__instances.get_all():
             if instance.get_url() == jenkins_url:
                 self.__current_server = instance
@@ -35,9 +35,11 @@ class Configurator(QObject):
         pat = self.get_pat(username, password, jenkins_url)
         if pat is not None:
             jnlp_file = self.get_jnlp(username, password, jenkins_url)
-            self.add_jenkins_credentials(username, pat, jnlp_file, jenkins_url)
             if jnlp_file is not None:
+                self.add_jenkins_credentials(username, pat, jnlp_file, jenkins_url)
                 self.add_jenkins_instance(jenkins_url, username, pat, jnlp_file)
+                if plugins is True:
+                    self.install_plugins(username, pat, jnlp_file, jenkins_url)
                 self.connect_signal.emit(1, "Successfully connected to server!")
 
     install_signal = Signal(int, str)
@@ -62,7 +64,7 @@ class Configurator(QObject):
             self.add_jenkins_credentials(username, token, "../artifacts/jenkins-cli.jar", "http://localhost:8080")
             self.install_signal.emit(25, "Generated personal access token\nInstalling plugins...\n")
             self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
-            self.install_plugins()
+            self.install_plugins(username, token, "../artifacts/jenkins-cli.jar", "http://localhost:8080")
             self.install_signal.emit(90, "Installed plugins successfully\nConfiguring setup...\n")
             self.disable_security(username, token, "http://localhost:8080")
             self.install_signal.emit(100, "Setup complete\n")
@@ -71,11 +73,11 @@ class Configurator(QObject):
         else:
             self.install_signal.emit(-1, "Failed to install Jenkins")
 
-    def install_plugins(self):
+    def install_plugins(self, username, token, jnlp, url):
         script_path = "./scripts/server_configuration/install_plugins.sh"
 
         try:
-            command = ["/usr/bin/sudo", script_path, self.__current_server.get_username(), self.__current_server.get_token(), self.__current_server.get_jnlp_file(), self.__current_server.get_url()]
+            command = ["bash", script_path, username, token, jnlp, url]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
@@ -117,8 +119,10 @@ class Configurator(QObject):
             exit_code = result.returncode
             if exit_code != 0:
                 self.install_signal.emit(-1, "Failed to install Jenkins")
+                return -1
             else:
                 self.install_signal.emit(100, "Proxy setup complete")
+                return 0
             print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")

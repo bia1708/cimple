@@ -181,7 +181,7 @@ class JobConfigurator(QObject):
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
-        
+
         if exit_code == 0:
             self.auth_signal.emit(0, "Token has the required permissions.")
             return True
