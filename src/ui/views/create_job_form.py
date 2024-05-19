@@ -39,10 +39,10 @@ class Worker(QRunnable):
         self.repo = repo
         self.signal = WorkerSignal()
 
-    # result_signal = Signal(bool, bool)
     def run(self):
         auth = self.config.validate_gh_credentials(self.token, self.username)
-        repo = self.config.validate_repo_exists(self.username, self.repo)
+        if auth:
+            repo = self.config.validate_repo_exists(self.username, self.repo)
         permissions = not self.git_status
         if self.git_status is True:
             permissions = self.config.validate_token_permissions(self.token)
@@ -99,9 +99,9 @@ class CreateJobFormView(QWidget):
         layout.addRow(self._username_label, self._username_line_edit)
         layout.addRow(self._token_label, self._token_line_edit)
         layout.addRow(self._repo_label, self._repo_line_edit)
-        self._error_label = QLabel()
+        self._error_label = QLabel("")
         self._error_label.setStyleSheet("color: red;")
-        self._error_label.setVisible(False)
+        # self._error_label.setVisible(False)
         self._job_configurator.auth_signal.connect(self.show_error)
         layout.addWidget(self._checkbox)
         layout.addWidget(self._error_label)
@@ -132,8 +132,8 @@ class CreateJobFormView(QWidget):
             self.thread_pool.start(worker)
 
     def enable_next(self, auth, permissions, repo):
-        print(auth and permissions and repo)
         self._next_button.setEnabled(auth and permissions and repo)
+        # self._error_label.setVisible(False)
 
     def next_button_action(self):
         # self.form_signal.emit(self._username_line_edit.text(), self._token_line_edit.text(), self._checkbox.isChecked())
@@ -143,11 +143,12 @@ class CreateJobFormView(QWidget):
         self.job_worker.start()
 
     def show_error(self, error_code, message):
+        print(error_code)
         if error_code != 0:
             self._error_label.setText(message)
-            self._error_label.setVisible(True)
+            # self._error_label.setVisible(True)
         else:
-            self._error_label.setVisible(False)
+            self._error_label.setText("")
 
     def finished_job_creation(self, status):
         self.setCursor(Qt.CursorShape.ArrowCursor)

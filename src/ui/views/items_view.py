@@ -1,7 +1,8 @@
 from PySide6 import QtGui, QtCore
 from PySide6.QtCore import Qt, QTimer, Signal, QThread
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QSpacerItem, QSizePolicy, QMessageBox
 from service.job_configurator import JobConfigurator
+from ui.components.message_box import MessageBox
 from ui.views.create_job_form import CreateJobFormView
 from ui.components.button import Button
 from ui.components.table import Table
@@ -30,10 +31,23 @@ class EnableProxyWorker(QThread):
         super().__init__()
         self.config = config
 
+    finished_signal = Signal(bool, int)
+
+    def run(self):
+        status = self.config.enable_proxy()
+        self.finished_signal.emit(True, status)
+
+
+class InstallPluginsWorker(QThread):
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+
     finished_signal = Signal(bool)
 
     def run(self):
-        self.config.enable_proxy()
+        current_server = self.config.get_current_server()
+        self.config.install_plugins(current_server.get_username(), current_server.get_token(), current_server.get_jnlp_file(), current_server.get_url())
         self.finished_signal.emit(True)
 
 
@@ -125,6 +139,10 @@ class ItemsView(QWidget):
             self._enable_proxy_button = Button("Enable Proxy")
             self._enable_proxy_button.clicked.connect(self.enable_proxy)
             self._buttons_container_layout.addWidget(self._enable_proxy_button)
+            self.show_enable_proxy(self._configurator.get_current_server().get_url())
+        self._install_plugins_button = Button("Install Plugins")
+        self._install_plugins_button.clicked.connect(self.install_plugins)
+        self._buttons_container_layout.addWidget(self._install_plugins_button)
         self._buttons_container_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred))
         self._buttons_container_layout.addWidget(self._run_job_button)
         self._buttons_container_layout.addWidget(self._add_job_button)
@@ -169,10 +187,27 @@ class ItemsView(QWidget):
         self.proxy_worker.finished_signal.connect(self.finish_enable_proxy)
         self.proxy_worker.start()
 
-    def finish_enable_proxy(self):
+    def finish_enable_proxy(self, finished, status):
         self.setCursor(Qt.CursorShape.ArrowCursor)
         self.proxy_worker.terminate()
-        self._enable_proxy_button.hide()
+        if status == 0:
+            self._enable_proxy_button.hide()
+        else:
+            self._message_box = MessageBox()
+            self._message_box.setIcon(QMessageBox.Icon.Critical)
+            self._message_box.setText("Failed to setup reverse proxy service!")
+            self._message_box.setWindowTitle("Error")
+            self._message_box.exec()
+
+    def install_plugins(self):
+        self.setCursor(Qt.CursorShape.BusyCursor)
+        self.plugins_worker = InstallPluginsWorker(self._configurator)
+        self.plugins_worker.finished_signal.connect(self.finish_install_plugins)
+        self.plugins_worker.start()
+
+    def finish_install_plugins(self):
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        self.plugins_worker.terminate()
 
     def update_servers_list(self):
         self._server_list.clear()
@@ -227,7 +262,6 @@ class ItemsView(QWidget):
                     #     tooltip_text = f"Click <a href=\"{job_data[4]}\">here<\a>"
                     #     item.setToolTip(tooltip_text)
                     self._jobs_table.setItem(row_index, col_index, item)
-                    
 
     def update_jobs_table_for_new_server(self):
         # Clear contents first
@@ -241,6 +275,15 @@ class ItemsView(QWidget):
                 item = QTableWidgetItem(col_data)
                 self._jobs_table.setItem(row_index, col_index, item)
 
+    def show_enable_proxy(self, current_server):
+        try:
+            if current_server == "http://localhost:8080" or "http://127.0.0.1:8080":
+                self._enable_proxy_button.show()
+            else:
+                self._enable_proxy_button.hide()
+        except:
+            pass
+
     def set_new_current_server(self):
         current_index = self._server_list_view.selectionModel().currentIndex()
 
@@ -248,6 +291,7 @@ class ItemsView(QWidget):
             # Get the selected item from the model
             current_item = self._server_list.itemFromIndex(current_index)
             self._configurator.set_current_server(current_item.text())
+            self.show_enable_proxy(current_item.text())
             self.update_current_server_label()
             self.update_jobs_table_for_new_server()
 
