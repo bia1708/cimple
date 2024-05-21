@@ -42,6 +42,15 @@ class CppJob(Job):
         super().__init__(jenkinsfile, git_repo, git_status)
 
 
+class JavaJob(Job):
+    def __init__(self, git_repo, git_status):
+        if git_status is True:
+            jenkinsfile = "./scripts/job_configuration/generate_job_java_with_git.groovy"
+        else:
+            jenkinsfile = "./scripts/job_configuration/generate_job_java.groovy"
+        super().__init__(jenkinsfile, git_repo, git_status)
+
+
 class JobFactory:
     @staticmethod
     def create_job(job_type, git_repo, git_status):
@@ -49,5 +58,7 @@ class JobFactory:
             return PythonJob(git_repo, git_status)
         elif job_type == "C++":
             return CppJob(git_repo, git_status)
+        elif job_type == "Java":
+            return JavaJob(git_repo, git_status)
         else:
             raise ValueError("Unknown job type")

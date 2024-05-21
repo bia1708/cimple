@@ -8,5 +8,34 @@ repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get
 repo_owner=$(echo $repo | awk -F'/' '{print $4}')
 
 # Get primary language from repo (i.e. cimple's would be Python)
-language=`gh api repos/$repo_owner/$repo_name/languages | jq 'to_entries | max_by(.value) | .key'`
-echo "language:$language"
+#language=`gh api repos/$repo_owner/$repo_name/languages | jq 'to_entries | max_by(.value) | .key'`
+
+languages=$(gh api repos/$repo_owner/$repo_name/languages)
+
+# Extract the language with the highest number of bytes of code
+primary_language=$(echo "$languages" | jq -r 'to_entries | max_by(.value) | .key')
+
+# Prioritization order (so as not to wrongly interpret language)
+declare -A language_priority=(
+    ["Python"]=1
+    ["Java"]=2
+    ["C++"]=3
+    ["JavaScript"]=4
+    ["Ruby"]=5
+    ["CSS"]=99
+)
+
+# Function to get the highest priority language
+get_highest_priority_language() {
+    echo "$languages" | jq -r 'to_entries | .[] | .key' | while read lang; do
+        priority=${language_priority[$lang]:-100}
+        echo "$priority $lang"
+    done | sort -n | head -n 1 | cut -d' ' -f2
+}
+
+# Determine the primary language
+if [ -n "$primary_language" ]; then
+    primary_language=$(get_highest_priority_language)
+fi
+
+echo "language:$primary_language"

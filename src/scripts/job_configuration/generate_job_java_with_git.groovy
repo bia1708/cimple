@@ -1,10 +1,4 @@
-                        pipelineJob("${{REPO_NAME}}"){{
-                            properties {{
-                                githubProjectUrl("${{REPO}}")
-                            }}
-                            triggers {{
-                                githubPush()
-                            }}
+pipelineJob("${{REPO_NAME}}"){{
                             environmentVariables {{
                                 env('REPO', "${{REPO}}")
                                 env('REPO_NAME', "${{REPO_NAME}}")
@@ -26,6 +20,10 @@
             ]);
         }}
 
+        def fileExists(filePath) {{
+            def file = new File(filePath)
+            return file.exists()
+        }}
 
         pipeline {{
             agent any
@@ -47,17 +45,21 @@
                 stage("Build") {{
                     steps {{
                         script {{
-                            withPythonEnv('python3') {{
-                                sh \'\'\'
-                                    #!/bin/bash
-                                    if [ "\\$(find . -maxdepth 1 -name 'Makefile*')" != "" ]; then
-                                        make install
-                                    elif [ "\\${{REQUIREMENTS}}" == "true" ]; then
-                                        pip install -r requirements.txt
-                                    elif [ "\\$(find . -name 'setup.py')" != "" ] || [ "\\$(find . -name 'pyproject.toml')" != "" ]; then
-                                        python3 -m pip install .
-                                    fi
-                                \'\'\'
+                            // Check for Gradle build script
+                            if (fileExists('build.gradle')) {{
+                                sh './gradlew build'
+                            }}
+                            // Check for Ant build script
+                            else if (fileExists('build.xml')) {{
+                                sh 'ant build'
+                            }}
+                            // Check for Makefile
+                            else if (fileExists('Makefile')) {{
+                                sh 'make'
+                            }}
+                            // Default to Maven
+                            else {{
+                                sh 'mvn clean install'
                             }}
                         }}
                     }}
@@ -66,21 +68,17 @@
                 stage('Test') {{
                     steps {{
                         script {{
-                            withPythonEnv('python3') {{
-                                sh \'\'\'
-                                    #!/bin/bash
-                                    pip install pytest pytest-html
-                                    if [ "\\$(find . -maxdepth 1 -name 'test*')" != "" ]; then
-                                        if [ "\\$(find . -name 'runtests.py')" != "" ]; then
-                                            cd tests
-                                            ./runtests.py
-                                        else
-                                            python3 -m pytest --html=pytest_report.html --self-contained-html
-                                        fi
-                                    else
-                                        echo "No tests found!"
-                                    fi
-                                \'\'\'
+                            // Check for Gradle test task
+                            if (fileExists('build.gradle')) {{
+                                sh './gradlew test'
+                            }}
+                            // Check for Ant junit task
+                            else if (fileExists('build.xml')) {{
+                                sh 'ant junit'
+                            }}
+                            // Default to maven
+                            else {{
+                                sh 'mvn test'
                             }}
                         }}
                     }}
@@ -88,18 +86,8 @@
             }}
             post {{
                 always {{
-                    withPythonEnv('python3') {{
-                        archiveArtifacts 'pytest_report.html'
-                        publishHTML(target: [
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true,
-                            reportDir: '.',
-                            reportFiles: 'pytest_report.html',
-                            reportName: 'pytest Output',
-                            reportTitles: ''
-                        ])
-                    }}
+                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                    junit '**/target/surefire-reports/*.xml'
                     withCredentials([usernamePassword(credentialsId: "git_pat_\\${{REPO_NAME}}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'), usernamePassword(credentialsId: "jenkins_token", usernameVariable: 'JENKINS_USER', passwordVariable: 'JENKINS_API_TOKEN')]) {{
                         script {{
                             env.CONSOLE_OUTPUT = "\\${{env.BUILD_URL}}consoleText"
