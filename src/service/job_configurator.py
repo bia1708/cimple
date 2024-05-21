@@ -17,6 +17,7 @@ class JobConfigurator(QObject):
         job_type = self.get_repo_language(git_repo)
         self.create_jenkins_jobs_ini()
 
+        print("HERE" + job_type)
         new_job = JobFactory.create_job(job_type, git_repo, git_status)
         jenkinsfile = new_job.get_jenkinsfile()
         pipeline_script_file = open(jenkinsfile, "r")
