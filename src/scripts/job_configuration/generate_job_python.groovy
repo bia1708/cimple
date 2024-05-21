@@ -39,9 +39,6 @@
                                         python3 -m pip install .
                                     fi
                                 \'\'\'
-                                // if (env.REQUIREMENTS == "true" ) {{
-                                //     sh 'pip install -r requirements.txt'
-                                // }}
                             }}
                         }}
                     }}

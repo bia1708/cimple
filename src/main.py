@@ -17,7 +17,8 @@ if __name__ == '__main__':
     # config.enable_proxy()
     # job_config = Job_Configurator(config.get_current_server())
     # job_config.init_repo("https://github.com/bia1708/cimple.git", "bia1708", "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")
-    # https://github.com/django/django
+    # https://github.com/django/django.git
+    # https://github.com/spring-projects/spring-petclinic.git
     # config.load_jobs()
     # config.close()
 
@@ -30,7 +31,7 @@ if __name__ == '__main__':
 
     app.exec()
 
-#curl jq gh python3.10-venv
+#curl jq gh python3.10-venv maven
 #TODO: PUT APT DEPS IN MAKEFILE
 #TODO: ADD pip DEPS IN REQ.TXT
 #TODO: make jenkins sudoer?
