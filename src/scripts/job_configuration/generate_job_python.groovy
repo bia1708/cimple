@@ -31,10 +31,12 @@
                             withPythonEnv('python3') {{
                                 sh \'\'\'
                                     #!/bin/bash
-                                    if [ "\\$(find . -name 'Makefile*')" != "" ]; then
+                                    if [ "\\$(find . -maxdepth 1 -name 'Makefile*')" != "" ]; then
                                         make install
                                     elif [ "\\${{REQUIREMENTS}}" == "true" ]; then
                                         pip install -r requirements.txt
+                                    elif [ "\\$(find . -name 'setup.py')" != "" ] || [ "\\$(find . -name 'pyproject.toml')" != "" ]; then
+                                        python3 -m pip install .
                                     fi
                                 \'\'\'
                                 // if (env.REQUIREMENTS == "true" ) {{
@@ -49,7 +51,20 @@
                     steps {{
                         script {{
                             withPythonEnv('python3') {{
-                                sh 'python3 -m pytest --html=pytest_report.html --self-contained-html'
+                                sh \'\'\'
+                                    #!/bin/bash
+                                    pip install pytest pytest-html
+                                    if [ "\\$(find . -maxdepth 1 -name 'test*')" != "" ]; then
+                                        if [ "\\$(find . -name 'runtests.py')" != "" ]; then
+                                            cd tests
+                                            ./runtests.py
+                                        else
+                                            python3 -m pytest --html=pytest_report.html --self-contained-html
+                                        fi
+                                    else
+                                        echo "No tests found!"
+                                    fi
+                                \'\'\'
                             }}
                         }}
                     }}

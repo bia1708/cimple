@@ -17,6 +17,7 @@ if __name__ == '__main__':
     # config.enable_proxy()
     # job_config = Job_Configurator(config.get_current_server())
     # job_config.init_repo("https://github.com/bia1708/cimple.git", "bia1708", "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")
+    # https://github.com/django/django
     # config.load_jobs()
     # config.close()
 
