@@ -27,11 +27,22 @@ declare -A language_priority=(
 
 # Function to get the highest priority language
 get_highest_priority_language() {
-    echo "$languages" | jq -r 'to_entries | .[] | .key' | while read lang; do
+    echo "$languages" | jq -r 'to_entries | .[] | @base64' | while read entry; do
+        _jq() {
+            echo ${entry} | base64 --decode | jq -r ${1}
+        }
+        lang=$(_jq '.key')
+        bytes=$(_jq '.value')
         priority=${language_priority[$lang]:-100}
-        echo "$priority $lang"
-    done | sort -n | head -n 1 | cut -d' ' -f2
+        # Multiply bytes by -1 to sort in descending order
+        echo "$((bytes * -1)) $priority $lang"
+    done | sort -n | head -n 1 | cut -d' ' -f3
 }
+    # echo "$languages" | jq -r 'to_entries | .[] | .key' | while read lang; do
+    #     priority=${language_priority[$lang]:-100}
+    #     echo "$priority $lang"
+    # done | sort -n | head -n 1 | cut -d' ' -f2
+# }
 
 # Determine the primary language
 if [ -n "$primary_language" ]; then
