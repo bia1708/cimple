@@ -1,9 +1,10 @@
 import subprocess
-import os
+
 from PySide6.QtCore import QObject, Signal
-from src.repository.repository import Repository
+
 from src.domain.git_repo import Git_Repo
 from src.domain.job import *
+
 
 class JobConfigurator(QObject):
     def __init__(self, server):

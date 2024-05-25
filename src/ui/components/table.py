@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QTableWidget, QAbstractItemView, QHeaderView
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import QCursor
+from PySide6.QtWidgets import QTableWidget, QAbstractItemView, QHeaderView
 
 from src.ui.components.tooltip import CustomToolTip
 

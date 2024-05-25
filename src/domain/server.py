@@ -1,4 +1,3 @@
-import pickle
 from jenkins import Jenkins
 
 class Server:

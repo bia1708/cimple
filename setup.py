@@ -1,10 +1,19 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+
 
 setup(
     name='cimple',
     version='1.0',
-    packages=['ui', 'ui.views', 'ui.components', 'domain', 'service', 'repository'],
-    package_dir={'': 'src'},
+    packages=find_packages(),
+    install_requires=[
+        'PySide6',
+        'python-jenkins'
+    ],
+    entry_points={
+        'gui_scripts': [
+            'cimple = src:main',
+        ]
+    },
     url='https://github.com/bia1708/cimple',
     license='MIT License',
     author='bia1708',
