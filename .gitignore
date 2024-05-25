@@ -6,3 +6,4 @@ package*
 *.html
 .idea
 .pytest
+*.iml
