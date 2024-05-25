@@ -1,6 +1,6 @@
 import pickle
 import os
-from repository.repository import Repository
+from src.repository.repository import Repository
 
 
 class Iterator:
@@ -23,8 +23,8 @@ class Iterator:
 class PersistentRepository(Repository):
     def __init__(self, filename):
         super().__init__()
-        if not os.path.exists("../artifacts/"):
-            os.makedirs("../artifacts/")
+        if not os.path.exists("artifacts/"):
+            os.makedirs("artifacts/")
         self.__filename = filename
         if not os.path.isfile(self.__filename):
             open(self.__filename, 'wb')

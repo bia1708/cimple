@@ -1,9 +1,9 @@
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
 import multiprocessing
-from ui.components.link_event import LinkEvent
-from ui.components.progress_bar import ProgressBar
-from ui.components.message_box import MessageBox
+from src.ui.components.link_event import LinkEvent
+from src.ui.components.progress_bar import ProgressBar
+from src.ui.components.message_box import MessageBox
 
 
 class Worker(QThread):

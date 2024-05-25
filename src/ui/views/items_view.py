@@ -1,14 +1,14 @@
 from PySide6 import QtGui, QtCore
 from PySide6.QtCore import Qt, QTimer, Signal, QThread
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QTableWidgetItem, QSpacerItem, QSizePolicy, QMessageBox
-from service.job_configurator import JobConfigurator
-from ui.components.message_box import MessageBox
-from ui.views.create_job_form import CreateJobFormView
-from ui.components.button import Button
-from ui.components.table import Table
-from ui.components.list_view import ListView
-from ui.components.link_event import LinkEvent
-from ui.views.connect_to_server_form import ConnectToServerFormView
+from src.service.job_configurator import JobConfigurator
+from src.ui.components.message_box import MessageBox
+from src.ui.views.create_job_form import CreateJobFormView
+from src.ui.components.button import Button
+from src.ui.components.table import Table
+from src.ui.components.list_view import ListView
+from src.ui.components.link_event import LinkEvent
+from src.ui.views.connect_to_server_form import ConnectToServerFormView
 import os
 
 

@@ -1,9 +1,9 @@
 from PySide6.QtCore import Qt, Signal, QThreadPool, QObject, QRunnable, QThread
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QCheckBox
 
-from service.job_configurator import JobConfigurator
-from ui.components.line_edit import LineEdit
-from ui.components.button import Button
+from src.service.job_configurator import JobConfigurator
+from src.ui.components.line_edit import LineEdit
+from src.ui.components.button import Button
 import os
 
 
