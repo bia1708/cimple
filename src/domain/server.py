@@ -39,9 +39,6 @@ class Server:
     def set_jobs(self, jobs):
         self.__jobs = jobs
 
-    def serialize(self):
-        return pickle.dumps(self)
-
     def to_api_object(self):
         return Jenkins(self.__url, username=self.__username, password=self.__token)
 

@@ -1,8 +1,8 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QCheckBox
 
-from ui.components.line_edit import LineEdit
-from ui.components.button import Button
+from src.ui.components.line_edit import LineEdit
+from src.ui.components.button import Button
 
 
 class InstallFormView(QWidget):

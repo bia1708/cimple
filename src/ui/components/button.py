@@ -1,6 +1,4 @@
-from PySide6.QtWidgets import (
-    QPushButton,
-)
+from PySide6.QtWidgets import QPushButton
 
 
 class Button(QPushButton):

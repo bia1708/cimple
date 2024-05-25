@@ -27,27 +27,27 @@ class Job:
 class PythonJob(Job):
     def __init__(self, git_repo, git_status):
         if git_status is True:
-            jenkinsfile = "./scripts/job_configuration/generate_job_python_with_git.groovy"
+            jenkinsfile = "scripts/job_configuration/generate_job_python_with_git.groovy"
         else:
-            jenkinsfile = "./scripts/job_configuration/generate_job_python.groovy"
+            jenkinsfile = "scripts/job_configuration/generate_job_python.groovy"
         super().__init__(jenkinsfile, git_repo, git_status)
 
 
 class CppJob(Job):
     def __init__(self, git_repo, git_status):
         if git_status is True:
-            jenkinsfile = "./scripts/job_configuration/generate_job_cpp_with_git.groovy"
+            jenkinsfile = "scripts/job_configuration/generate_job_cpp_with_git.groovy"
         else:
-            jenkinsfile = "./scripts/job_configuration/generate_job_cpp.groovy"
+            jenkinsfile = "scripts/job_configuration/generate_job_cpp.groovy"
         super().__init__(jenkinsfile, git_repo, git_status)
 
 
 class JavaJob(Job):
     def __init__(self, git_repo, git_status):
         if git_status is True:
-            jenkinsfile = "./scripts/job_configuration/generate_job_java_with_git.groovy"
+            jenkinsfile = "scripts/job_configuration/generate_job_java_with_git.groovy"
         else:
-            jenkinsfile = "./scripts/job_configuration/generate_job_java.groovy"
+            jenkinsfile = "scripts/job_configuration/generate_job_java.groovy"
         super().__init__(jenkinsfile, git_repo, git_status)
 
 

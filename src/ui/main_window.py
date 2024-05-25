@@ -10,14 +10,14 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QLabel
 )
 
-from service.configurator import Configurator
-from ui.components.link_event import LinkEvent
-from ui.components.message_box import MessageBox
-from ui.views.connect_to_server_form import ConnectToServerFormView
-from ui.components.button import Button
-from ui.views.install_form import InstallFormView
-from ui.views.install_progress import InstallProgressView
-from ui.views.items_view import ItemsView
+from src.service.configurator import Configurator
+from src.ui.components.link_event import LinkEvent
+from src.ui.components.message_box import MessageBox
+from src.ui.views.connect_to_server_form import ConnectToServerFormView
+from src.ui.components.button import Button
+from src.ui.views.install_form import InstallFormView
+from src.ui.views.install_progress import InstallProgressView
+from src.ui.views.items_view import ItemsView
 
 
 class MainWindow(QMainWindow):
@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         # self._main_window = QMainWindow()
         self.setWindowTitle('cimple')
         self.resize(800, 500)
-        self.setWindowIcon(QIcon("ui/resources/icon.png"))
+        self.setWindowIcon(QIcon("src/ui/resources/icon.png"))
         # TODO: Maybe transitions?
         # self._main_layout = QVBoxLayout()
         # self._stacked_widget = QStackedWidget()

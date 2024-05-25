@@ -8,9 +8,9 @@ username=$5
 url=$6
 jnlp=$7
 
-echo $git_token > ../artifacts/token.txt
+echo $git_token > ./artifacts/token.txt
 output=$(gh auth login --with-token < ../artifacts/token.txt 2>&1 | grep error)
-rm ../artifacts/token.txt
+rm ./artifacts/token.txt
 #gh extension install cli/gh-webhook
 
 repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get only repo name from repo link
@@ -37,7 +37,7 @@ echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
   <description>jenkins_api_token</description>
   <usernameSecret>false</usernameSecret>
 </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" \
- | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
+ | java -jar ./artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
    create-credentials-by-xml system::system::jenkins _
 
 java -jar $jnlp -auth $username:$token -s $url \
@@ -49,7 +49,7 @@ echo "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> \
   <secret>$git_token</secret>
   <description>gh_token</description>
 </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" \
- | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
+ | java -jar ./artifacts/jenkins-cli.jar -auth $username:$token -s http://localhost:8080/  \
    create-credentials-by-xml system::system::jenkins _
 
 curl --user "$username:$token" --data-urlencode \

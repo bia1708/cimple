@@ -1,9 +1,9 @@
 import requests
 import os
 import subprocess
-from domain.server import Server
-from repository.repository import Repository
-from repository.persistent_repository import PersistentRepository
+from src.domain.server import Server
+from src.repository.repository import Repository
+from src.repository.persistent_repository import PersistentRepository
 from PySide6.QtCore import QObject, Signal
 
 
@@ -20,7 +20,7 @@ class Configurator(QObject):
         if not hasattr(self, 'initialized'):  # To avoid re-initialization
             super().__init__()
             self.initialized = True
-            self.__instances = PersistentRepository("../artifacts/data.bin")
+            self.__instances = PersistentRepository("./artifacts/data.bin")
             self.__current_server = self.__instances.get_current()
 
     connect_signal = Signal(int, str)
@@ -33,6 +33,7 @@ class Configurator(QObject):
                 self.connect_signal.emit(-1, "Server already exists!")
                 return
         pat = self.get_pat(username, password, jenkins_url)
+        print("PAT:" + pat)
         if pat is not None:
             jnlp_file = self.get_jnlp(username, password, jenkins_url)
             if jnlp_file is not None:
@@ -61,10 +62,10 @@ class Configurator(QObject):
         if exit_code == 0:
             self.install_signal.emit(20, "Installed Jenkins successfully\nGenerating personal access token...\n")
             token = self.get_pat(username, password, "http://localhost:8080")
-            self.add_jenkins_credentials(username, token, "../artifacts/jenkins-cli.jar", "http://localhost:8080")
+            self.add_jenkins_credentials(username, token, "./artifacts/jenkins-cli.jar", "http://localhost:8080")
             self.install_signal.emit(25, "Generated personal access token\nInstalling plugins...\n")
-            self.add_jenkins_instance("http://localhost:8080", username, token, "../artifacts/jenkins-cli.jar")
-            self.install_plugins(username, token, "../artifacts/jenkins-cli.jar", "http://localhost:8080")
+            self.add_jenkins_instance("http://localhost:8080", username, token, "./artifacts/jenkins-cli.jar")
+            self.install_plugins(username, token, "./artifacts/jenkins-cli.jar", "http://localhost:8080")
             self.install_signal.emit(90, "Installed plugins successfully\nConfiguring setup...\n")
             self.disable_security(username, token, "http://localhost:8080")
             self.install_signal.emit(100, "Setup complete\n")
@@ -137,6 +138,7 @@ class Configurator(QObject):
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
 
             output = result.stdout.strip()
+            print(output)
             exit_code = result.returncode
             if exit_code != 0:
                 self.install_signal.emit(-1, "Failed to install Jenkins")
@@ -158,6 +160,7 @@ class Configurator(QObject):
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
 
             output = result.stdout.strip()
+            print(output)
             exit_code = result.returncode
             if exit_code != 0:
                 self.install_signal.emit(-1, "Failed to install Jenkins")

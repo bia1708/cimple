@@ -1,10 +1,10 @@
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QApplication
 
-from service.configurator import Configurator
-from service.job_configurator import JobConfigurator
+from src.service.configurator import Configurator
+from src.service.job_configurator import JobConfigurator
 
-from ui.main_window import MainWindow
+from src.ui.main_window import MainWindow
 
 if __name__ == '__main__':
     # config = Configurator()
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # job_config.init_repo("https://github.com/bia1708/cimple.git", "bia1708", "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")
     # https://github.com/django/django.git
     # https://github.com/spring-projects/spring-petclinic.git
-    # https://github.com/analogdevicesinc/libad9166-iio.git
+    # https://github.com/nlohmann/json.git
     # config.load_jobs()
     # config.close()
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     window = MainWindow()
 
-    app.setWindowIcon(QIcon("ui/resources/cimple.ico"))
+    app.setWindowIcon(QIcon("src/ui/resources/cimple.ico"))
 
     app.exec()
 

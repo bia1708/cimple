@@ -7,15 +7,15 @@ username=$4
 token=$5
 jnlp=$6
 url=$7
-CRUMB=../../aritfacts/cookie
+CRUMB=./aritfacts/cookie
 
 repo_name=$(echo $repo | awk -F'/' '{print $5}' | awk -F'.' '{print $1}')  # Get only repo name from repo link
 
 # Not auth output:
 # You are not logged into any GitHub hosts. Run gh auth login to authenticate.
-echo $git_token > ../artifacts/token.txt
-output=$(gh auth login --with-token < ../artifacts/token.txt 2>&1 | grep error)
-rm ../artifacts/token.txt
+echo $git_token > ./artifacts/token.txt
+output=$(gh auth login --with-token < ./artifacts/token.txt 2>&1 | grep error)
+rm ./artifacts/token.txt
 
 if [ ! -z "$output" ]; then
     echo "Authentication error. Please check your git credentials and try again."
@@ -35,5 +35,5 @@ echo "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl> \
   <description>git_pat_for_$repo_name</description>
   <usernameSecret>false</usernameSecret>
 </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" \
- | java -jar ../artifacts/jenkins-cli.jar -auth $username:$token -s $url  \
+ | java -jar  $jnlp -auth $username:$token -s $url  \
    create-credentials-by-xml system::system::jenkins _

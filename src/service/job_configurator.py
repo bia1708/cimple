@@ -1,9 +1,9 @@
 import subprocess
 import os
 from PySide6.QtCore import QObject, Signal
-from repository.repository import Repository
-from domain.git_repo import Git_Repo
-from domain.job import *
+from src.repository.repository import Repository
+from src.domain.git_repo import Git_Repo
+from src.domain.job import *
 
 class JobConfigurator(QObject):
     def __init__(self, server):
@@ -21,15 +21,15 @@ class JobConfigurator(QObject):
 
         pipeline_script = pipeline_script_file.read()
         pipeline_script_file.close()
-        with open("./scripts/job_configuration/seeder_template.yml") as seeder_template_file:
+        with open("scripts/job_configuration/seeder_template.yml") as seeder_template_file:
             seeder_script = seeder_template_file.read()
         seeder_template_file.close()
         seeder_script = f"{seeder_script}".replace("{script}", pipeline_script)
-        seeder_script_file = open("./scripts/job_configuration/seeder.yml", "w")
+        seeder_script_file = open("scripts/job_configuration/seeder.yml", "w")
         seeder_script_file.write(seeder_script)
         seeder_script_file.close()
 
-        script_path = "./scripts/job_configuration/create_job.sh"
+        script_path = "scripts/job_configuration/create_job.sh"
         try:
             command = ["bash", script_path, git_repo.get_repo_name(), self.__server.get_jnlp_file(), self.__server.get_url(), self.__server.get_username(), self.__server.get_token()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
@@ -117,7 +117,7 @@ class JobConfigurator(QObject):
             f"password={self.__server.get_token()}\n" + \
             f"url={self.__server.get_url()}\n"
 
-        ini_file = open("../artifacts/jenkins_jobs.ini", "w")
+        ini_file = open("artifacts/jenkins_jobs.ini", "w")
         ini_file.write(text)
         ini_file.close()
 
