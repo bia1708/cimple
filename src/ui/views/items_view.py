@@ -110,7 +110,7 @@ class ItemsView(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_jobs_table)
-        self.timer.start(3000)
+        self.timer.start(7000)
 
         # Create job button + Connect to server button
         self._buttons_container = QWidget()
@@ -257,7 +257,7 @@ class ItemsView(QWidget):
                     #     item.setData(Qt.ItemDataRole.BackgroundRole, job_data[4])
                     item = QTableWidgetItem(col_data)
                     item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
-                    item.setData(Qt.ItemDataRole.BackgroundRole, job_data[4])
+                    item.setData(Qt.ItemDataRole.BackgroundRole, (job_data[4], job_data[5]))
                     # if col_index == 3:
                     #     tooltip_text = f"Click <a href=\"{job_data[4]}\">here<\a>"
                     #     item.setToolTip(tooltip_text)

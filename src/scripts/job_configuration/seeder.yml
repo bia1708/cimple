@@ -19,7 +19,6 @@
                             environmentVariables {{
                                 env('REPO', "${{REPO}}")
                                 env('REPO_NAME', "${{REPO_NAME}}")
-                                propertiesFile("properties_file.props")
                             }}
                             definition {{
                                 cps {{
@@ -37,12 +36,22 @@
                 stage("Checkout") {{
                     steps {{
                         script {{
-                            def scmVars = checkout([
-                                \\$class: 'GitSCM', branches: [[name: '*/main']],
-                                extensions: [[\\$class: 'RelativeTargetDirectory', relativeTargetDir: "\\${{WORKSPACE}}"],],
-                                userRemoteConfigs: [[credentialsId: "git_pat_\\${{REPO_NAME}}", url: "\\$REPO"]]
-                            ])
-                            env.GIT_COMMIT = scmVars.GIT_COMMIT
+                            try {{
+                                def scmVars = checkout([
+                                    \\$class: 'GitSCM', branches: [[name: '*/main']],
+                                    extensions: [[\\$class: 'RelativeTargetDirectory', relativeTargetDir: "\\${{WORKSPACE}}"]],
+                                    userRemoteConfigs: [[credentialsId: "git_pat_\\${{REPO_NAME}}", url: "\\$REPO"]]
+                                ])
+                                env.GIT_COMMIT = scmVars.GIT_COMMIT
+                            }} catch (Exception e) {{
+                                echo 'Main branch not found, trying master branch...'
+                                def scmVars = checkout([
+                                    \\$class: 'GitSCM', branches: [[name: '*/master']],
+                                    extensions: [[\\$class: 'RelativeTargetDirectory', relativeTargetDir: "\\${{WORKSPACE}}"]],
+                                    userRemoteConfigs: [[credentialsId: "git_pat_\\${{REPO_NAME}}", url: "\\$REPO"]]
+                                ])
+                                env.GIT_COMMIT = scmVars.GIT_COMMIT
+                            }}
                         }}
                     }}
                 }}
@@ -50,34 +59,22 @@
                 stage("Build") {{
                     steps {{
                         script {{
-                            sh \'\'\'
-                                #!/bin/bash
-                                if [ "\\$(find . -maxdepth 1 -name 'CMakeLists.txt')" != "" ]; then
-                                    mkdir -p build
-                                    cd build
-                                    cmake ..
-                                    make
-                                elif [ "\\$(find . -maxdepth 1 -name 'Makefile*')" != "" ]; then
-                                    make
-                                else
-                                    g++ -o output *.cpp
-                                fi
-                            \'\'\'
-                            // if (fileExists('CMakeLists.txt')) {{
-                            //     // Use CMake to build the project
-                            //     sh \'\'\'
-                            //         mkdir -p build
-                            //         cd build
-                            //         cmake ..
-                            //         make
-                            //     \'\'\'
-                            // }} else if (fileExists('Makefile')) {{
-                            //     // Use Makefile to build the project
-                            //     sh 'make'
-                            // }} else {{
-                            //     // Use g++ to build the project directly
-                            //     sh 'g++ -o output *.cpp'
-                            // }}
+                            // Check for Gradle build script
+                            if (fileExists('build.gradle')) {{
+                                sh './gradlew build'
+                            }}
+                            // Check for Ant build script
+                            else if (fileExists('build.xml')) {{
+                                sh 'ant build'
+                            }}
+                            // Check for Makefile
+                            else if (fileExists('Makefile')) {{
+                                sh 'make'
+                            }}
+                            // Default to Maven
+                            else {{
+                                sh 'mvn clean install'
+                            }}
                         }}
                     }}
                 }}
@@ -85,39 +82,26 @@
                 stage('Test') {{
                     steps {{
                         script {{
-                            sh \'\'\'
-                                #!/bin/bash
-                                if [ "\\$(find . -maxdepth 1 -name 'CMakeLists.txt')" != "" ]; then
-                                    cd build
-                                    ctest
-                                elif [ "\\$(find . -maxdepth 1 -name 'Makefile*')" != "" ]; then
-                                    make test
-                                else
-                                    ./output
-                                fi
-                            \'\'\'
-                            // if (fileExists('CMakeLists.txt')) {{
-                            //     // Use CTest for testing if using CMake
-                            //     sh \'\'\'
-                            //         cd build
-                            //         ctest
-                            //     \'\'\'
-                            // }} else if (fileExists('Makefile')) {{
-                            //     // Assume the Makefile has a 'test' target
-                            //     sh 'make test'
-                            // }} else {{
-                            //     // Run tests directly if not using CMake or Makefile
-                            //     sh './output'
-                            // }}
+                            // Check for Gradle test task
+                            if (fileExists('build.gradle')) {{
+                                sh './gradlew test'
+                            }}
+                            // Check for Ant junit task
+                            else if (fileExists('build.xml')) {{
+                                sh 'ant junit'
+                            }}
+                            // Default to maven
+                            else {{
+                                sh 'mvn test'
+                            }}
                         }}
                     }}
                 }}
             }}
             post {{
                 always {{
-                    // Archive any test results and build artifacts
-                    archiveArtifacts artifacts: '**/build/**', allowEmptyArchive: true
-                    junit '**/build/test-reports/*.xml'
+                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                    junit '**/target/surefire-reports/*.xml'
                 }}
             }}
         }}""")

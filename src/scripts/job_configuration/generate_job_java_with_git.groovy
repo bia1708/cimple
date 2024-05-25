@@ -2,7 +2,6 @@ pipelineJob("${{REPO_NAME}}"){{
                             environmentVariables {{
                                 env('REPO', "${{REPO}}")
                                 env('REPO_NAME', "${{REPO_NAME}}")
-                                propertiesFile("properties_file.props")
                             }}
                             definition {{
                                 cps {{
@@ -32,12 +31,22 @@ pipelineJob("${{REPO_NAME}}"){{
                 stage("Checkout") {{
                     steps {{
                         script {{
-                            def scmVars = checkout([
-                                \\$class: 'GitSCM', branches: [[name: '*/main']],
-                                extensions: [[\\$class: 'RelativeTargetDirectory', relativeTargetDir: "\\${{WORKSPACE}}"],],
-                                userRemoteConfigs: [[credentialsId: "git_pat_\\${{REPO_NAME}}", url: "\\$REPO"]]
-                            ])
-                            env.GIT_COMMIT = scmVars.GIT_COMMIT
+                            try {{
+                                def scmVars = checkout([
+                                    \\$class: 'GitSCM', branches: [[name: '*/main']],
+                                    extensions: [[\\$class: 'RelativeTargetDirectory', relativeTargetDir: "\\${{WORKSPACE}}"]],
+                                    userRemoteConfigs: [[credentialsId: "git_pat_\\${{REPO_NAME}}", url: "\\$REPO"]]
+                                ])
+                                env.GIT_COMMIT = scmVars.GIT_COMMIT
+                            }} catch (Exception e) {{
+                                echo 'Main branch not found, trying master branch...'
+                                def scmVars = checkout([
+                                    \\$class: 'GitSCM', branches: [[name: '*/master']],
+                                    extensions: [[\\$class: 'RelativeTargetDirectory', relativeTargetDir: "\\${{WORKSPACE}}"]],
+                                    userRemoteConfigs: [[credentialsId: "git_pat_\\${{REPO_NAME}}", url: "\\$REPO"]]
+                                ])
+                                env.GIT_COMMIT = scmVars.GIT_COMMIT
+                            }}
                         }}
                     }}
                 }}
