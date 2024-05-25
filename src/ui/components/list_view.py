@@ -1,6 +1,4 @@
 from PySide6.QtWidgets import QListView
-from PySide6.QtCore import QSize
-
 
 
 class ListView(QListView):

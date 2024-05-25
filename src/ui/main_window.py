@@ -1,9 +1,6 @@
-import sys
-
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QCloseEvent, QIcon, QPixmap
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent, QIcon
 from PySide6.QtWidgets import (
-    QApplication,
     QWidget,
     QVBoxLayout,
     QMainWindow,
@@ -11,10 +8,8 @@ from PySide6.QtWidgets import (
 )
 
 from src.service.configurator import Configurator
-from src.ui.components.link_event import LinkEvent
-from src.ui.components.message_box import MessageBox
-from src.ui.views.connect_to_server_form import ConnectToServerFormView
 from src.ui.components.button import Button
+from src.ui.views.connect_to_server_form import ConnectToServerFormView
 from src.ui.views.install_form import InstallFormView
 from src.ui.views.install_progress import InstallProgressView
 from src.ui.views.items_view import ItemsView

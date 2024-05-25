@@ -1,10 +1,9 @@
-import requests
-import os
 import subprocess
-from src.domain.server import Server
-from src.repository.repository import Repository
-from src.repository.persistent_repository import PersistentRepository
+
 from PySide6.QtCore import QObject, Signal
+
+from src.domain.server import Server
+from src.repository.persistent_repository import PersistentRepository
 
 
 class Configurator(QObject):

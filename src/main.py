@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication
 
 from src.ui.main_window import MainWindow
 
+
 if __name__ == '__main__':
     # config = Configurator()
     # config.perform_fresh_install("bia", "1234")
@@ -19,7 +20,6 @@ if __name__ == '__main__':
     # https://github.com/nlohmann/json.git
     # config.load_jobs()
     # config.close()
-
     app = QApplication()
     app.setApplicationName('cimple')
 
@@ -29,11 +29,9 @@ if __name__ == '__main__':
 
     app.exec()
 
+
+
 #curl jq gh python3.10-venv maven cmake
-#TODO: PUT APT DEPS IN MAKEFILE
-#TODO: ADD pip DEPS IN REQ.TXT
-#TODO: make jenkins sudoer?
-#TODO: Create setup.py with PyCharm
 
 # Bad Tokens for testing:
 #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

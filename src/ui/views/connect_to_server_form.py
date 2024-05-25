@@ -1,9 +1,9 @@
 from PySide6.QtCore import Qt, Signal, QThread
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QMessageBox, QCheckBox
 
-from src.ui.components.message_box import MessageBox
-from src.ui.components.line_edit import LineEdit
 from src.ui.components.button import Button
+from src.ui.components.line_edit import LineEdit
+from src.ui.components.message_box import MessageBox
 
 
 class Worker(QThread):

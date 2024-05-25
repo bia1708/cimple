@@ -7,3 +7,5 @@ package*
 .idea
 .pytest
 *.iml
+build/*
+cimple.egg-info
