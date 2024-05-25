@@ -194,33 +194,54 @@ class Configurator(QObject):
     def load_jobs(self):
         jobs_with_info = []
         jenkins = self.__current_server.to_api_object()
-        jobs = jenkins.get_jobs()
+        jobs = jenkins.get_all_jobs()
         for job in jobs:
             job_name = job['name']
-            last_build = None
+            job_info = None
+            build_info = None
+            last_build_url = None
+            artifacts_url = None
+            current_build_number = "N/A"
+
             try:
-                last_build = jenkins.get_job_info(job_name)['lastBuild']['url']
+                job_info = jenkins.get_job_info(job_name)
             except:
                 pass
 
             try:
-                last_build_number = jenkins.get_job_info(job_name)['lastCompletedBuild']['number']
+                last_build_url = job_info['lastBuild']['url']
             except:
-                last_build_number = "N/A"
+                pass
+
             try:
-                job_result = jenkins.get_build_info(job_name, last_build_number)['result']
+                current_build_number = job_info['builds'][0]['number']
+            except:
+                pass
+
+            try:
+                artifacts_url = job_info['lastSuccessfulBuild']['url']
+            except:
+                pass
+
+            try:
+                build_info = jenkins.get_build_info(job_name, current_build_number)
+                running = build_info['building']
+                if running is True:
+                    job_result = "RUNNING"
+                else:
+                    job_result = build_info['result']
             except:
                 job_result = "N/A"
 
             github_enabled = "DISABLED"
             try:
-                if "property" in jenkins.get_job_info(job_name).keys():
-                    for prop in jenkins.get_job_info(job_name)['property']:
+                if "property" in job_info.keys():
+                    for prop in job_info['property']:
                         if "PipelineTriggers" in prop['_class']:
                             github_enabled = "ENABLED"
             except:
                 pass
-            jobs_with_info.append([job_name, last_build_number.__str__(), job_result, github_enabled, last_build])
+            jobs_with_info.append([job_name, current_build_number.__str__(), job_result, github_enabled, last_build_url, artifacts_url])
 
         return jobs_with_info
 

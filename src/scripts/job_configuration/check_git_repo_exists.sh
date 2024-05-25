@@ -9,4 +9,4 @@ git_repo=$2
 #     exit 1
 # fi
 
-git ls-remote $git_repo
+git ls-remote $git_repo -q

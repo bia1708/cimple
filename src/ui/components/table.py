@@ -56,11 +56,16 @@ class Table(QTableWidget):
 
     def mouseMoveEvent(self, event):
         item = self.itemAt(event.pos())
-        if item and item.column() == 2:  # Column where you want the custom tooltip
-            tooltip_text = f"Click <a href='{item.data(Qt.ItemDataRole.BackgroundRole)}console'>here</a> to view the full status."
-            global_pos = self.viewport().mapToGlobal(event.pos())
-            pos = QPoint(global_pos.x(), global_pos.y() - self.custom_tooltip.height() - 10)  # Adjust position as needed
-            self.custom_tooltip.show_tooltip(tooltip_text, pos)
+        if item and item.column() == 2:  # Column where the custom tooltip is
+            links = item.data(Qt.ItemDataRole.BackgroundRole)
+            if links[0] is not None:
+                tooltip_text = f"Click <a href='{links[0]}console'>here</a> to view the full status.\n"
+            if links[1] is not None:
+                tooltip_text += f"\nClick <a href='{links[1]}artifact'>here</a> to view the build artifacts."
+            if tooltip_text != "":
+                global_pos = self.viewport().mapToGlobal(event.pos())
+                pos = QPoint(global_pos.x(), global_pos.y() - self.custom_tooltip.height() - 10)
+                self.custom_tooltip.show_tooltip(tooltip_text, pos)
         else:
             self.custom_tooltip.hide()
         super().mouseMoveEvent(event)

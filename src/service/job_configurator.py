@@ -9,23 +9,16 @@ class JobConfigurator(QObject):
     def __init__(self, server):
         super().__init__()
         self.__server = server
-        # self.__jobs = Repository()
 
     def create_job(self, git_repo, git_status):
-        # os.mkdir(f"../artifacts/{git_repo.get_repo_name()}")
-        # self.parse_repo(git_repo)
         job_type = self.get_repo_language(git_repo)
         self.create_jenkins_jobs_ini()
 
-        print("HERE" + job_type)
+        print("Job type: " + job_type)
         new_job = JobFactory.create_job(job_type, git_repo, git_status)
         jenkinsfile = new_job.get_jenkinsfile()
         pipeline_script_file = open(jenkinsfile, "r")
 
-        # if git_status is True:
-        #     pipeline_script_file = open("./scripts/job_configuration/generate_job_python_with_git.groovy", "r")
-        # else:
-        #     pipeline_script_file = open("./scripts/job_configuration/generate_job_python.groovy", "r")
         pipeline_script = pipeline_script_file.read()
         pipeline_script_file.close()
         with open("./scripts/job_configuration/seeder_template.yml") as seeder_template_file:
@@ -97,7 +90,7 @@ class JobConfigurator(QObject):
         script_path = "./scripts/job_configuration/get_repo_language.sh"
 
         try:
-            command = ["bash", script_path, git_repo.get_git_username(), git_repo.get_repo_name()]
+            command = ["bash", script_path, git_repo.get_repo_name()]
             result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
 
             output = result.stdout.strip()

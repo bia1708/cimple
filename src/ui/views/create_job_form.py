@@ -127,6 +127,7 @@ class CreateJobFormView(QWidget):
         token = self._token_line_edit.text().strip()
         repo = self._repo_line_edit.text().strip()
         if bool(username) and bool(token) and bool(repo):
+            self.setCursor(Qt.CursorShape.BusyCursor)
             worker = Worker(self._job_configurator, username, token, self._checkbox.isChecked(), repo)
             worker.signal.result_signal.connect(self.enable_next)
             self.thread_pool.start(worker)
@@ -137,10 +138,10 @@ class CreateJobFormView(QWidget):
 
     def next_button_action(self):
         # self.form_signal.emit(self._username_line_edit.text(), self._token_line_edit.text(), self._checkbox.isChecked())
-        self.setCursor(Qt.CursorShape.BusyCursor)
         self.job_worker = JobCreationWorker(self._job_configurator, self._repo_line_edit.text(), self._username_line_edit.text(), self._token_line_edit.text(), self._checkbox.isChecked())
         self.job_worker.finished_signal.connect(self.finished_job_creation)
         self.job_worker.start()
+        self.close()
 
     def show_error(self, error_code, message):
         print(error_code)
@@ -151,7 +152,7 @@ class CreateJobFormView(QWidget):
             self._error_label.setText("")
 
     def finished_job_creation(self, status):
-        self.setCursor(Qt.CursorShape.ArrowCursor)
+        # self.setCursor(Qt.CursorShape.ArrowCursor)
         if(status):
             self.job_worker.terminate()
-            self.close()
+            # self.close()
