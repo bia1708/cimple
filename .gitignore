@@ -5,3 +5,4 @@ artifacts/*
 package*
 *.html
 .idea
+.pytest

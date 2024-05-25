@@ -1,8 +1,5 @@
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
-
-from src.service.configurator import Configurator
-from src.service.job_configurator import JobConfigurator
 
 from src.ui.main_window import MainWindow
 
