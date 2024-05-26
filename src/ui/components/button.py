@@ -1,7 +1,15 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 16/04/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 from PySide6.QtWidgets import QPushButton
 
 
 class Button(QPushButton):
+    """
+    Button Component Class for custom buttons.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setStyleSheet("background-color: #59981A; color: #ECF87F; border-radius: 10px;")

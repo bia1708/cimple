@@ -6,7 +6,7 @@ password=$2
 url=$3
 
 # Crumb is needed as an additional security measure for token generation
-crumb=$(curl -s --cookie-jar "./artifacts/cookie" -u $username:$password "$url/crumbIssuer/api/json" | jq -r '.crumb')
+crumb=$(curl -s --cookie-jar "./artifacts/cookie" -u "$username":"$password" "$url/crumbIssuer/api/json" | jq -r '.crumb')
 
 # Token generation
 token=$(curl -X POST -H "Jenkins-Crumb:$crumb" "$url/me/descriptorByName/jenkins.security.ApiTokenProperty/generateNewToken" \

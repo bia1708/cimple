@@ -1,3 +1,8 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 23/04/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QTableWidget, QAbstractItemView, QHeaderView
@@ -6,6 +11,9 @@ from src.ui.components.tooltip import CustomToolTip
 
 
 class Table(QTableWidget):
+    """
+    Table Component Class for custom tables.
+    """
     def __init__(self, parent=None):
         super(Table, self).__init__(parent)
         self.custom_tooltip = CustomToolTip(self)

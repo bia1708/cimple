@@ -1,6 +1,14 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 27/04/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 from PySide6.QtCore import QObject, QEvent
 
 class LinkEvent(QObject):
+    """
+    Custom Event Class for custom link events (update text on hover, click on link)
+    """
     def __init__(self, link=None, on_hover_link=None, parent=None):
         super().__init__(parent)
         self._link = link

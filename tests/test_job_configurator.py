@@ -1,9 +1,14 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 25/05/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 import unittest
 from unittest.mock import patch, MagicMock, mock_open
 from PySide6.QtCore import QObject, Signal
 from src.service.job_configurator import JobConfigurator  # Adjust the import path as necessary
 from src.domain.server import Server
-from src.domain.git_repo import Git_Repo
+from src.domain.git_repo import GitRepo
 
 class TestJobConfigurator(unittest.TestCase):
     @patch('subprocess.run')
@@ -20,7 +25,7 @@ class TestJobConfigurator(unittest.TestCase):
 
     @patch('subprocess.run')
     def test_create_job(self, mock_run):
-        mock_git_repo = MagicMock(spec=Git_Repo)
+        mock_git_repo = MagicMock(spec=GitRepo)
         mock_git_repo.get_repo_name.return_value = "mock_repo"
         mock_git_repo.get_git_username.return_value = "mock_git_user"
         mock_git_repo.get_git_pat.return_value = "mock_git_pat"
@@ -33,7 +38,7 @@ class TestJobConfigurator(unittest.TestCase):
 
     @patch('subprocess.run')
     def test_init_repo(self, mock_run):
-        mock_git_repo = MagicMock(spec=Git_Repo)
+        mock_git_repo = MagicMock(spec=GitRepo)
         mock_run.return_value = MagicMock(returncode=0, stderr="")
 
         with patch.object(self.configurator, 'get_repo_language', return_value='Python'):
@@ -52,7 +57,7 @@ class TestJobConfigurator(unittest.TestCase):
 
     @patch('subprocess.run')
     def test_setup_webhooks(self, mock_run):
-        mock_git_repo = MagicMock(spec=Git_Repo)
+        mock_git_repo = MagicMock(spec=GitRepo)
         mock_git_repo.get_repo_name.return_value = "mock_repo"
         mock_git_repo.get_git_username.return_value = "mock_git_user"
         mock_git_repo.get_git_pat.return_value = "mock_git_pat"

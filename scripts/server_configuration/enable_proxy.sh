@@ -29,6 +29,7 @@ WantedBy=multi-user.target"
 
 echo "$service_script" > /etc/systemd/system/smee.service
 
+# Start the service
 systemctl daemon-reload
 systemctl enable smee.service
 systemctl start smee.service

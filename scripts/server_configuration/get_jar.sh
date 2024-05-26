@@ -5,6 +5,7 @@ username=$1
 password=$2
 url=$3
 
+# Get the jenkins CLI file
 wget -o wget.log "$url/jnlpJars/jenkins-cli.jar" -P "./artifacts"
 filename=$(cat wget.log | grep "Saving to" | awk '{print $3}' | tr -cd '[:print:]')
 rm ./wget.log

@@ -1,5 +1,20 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 16/03/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
+
 
 class Job:
+    """
+    Template class for Jenkins Jobs
+    :param jenkinsfile: `str` Jenkinsfile to be used for job creation
+    :param git_repo: `GitRepo` Git repo to create job for
+    :param git_status: `boolean` Whether the job has git status enabled
+    :ivar __jenkinsfile: `str` Jenkinsfile to be used for job creation
+    :ivar __git_repo: `GitRepo` Git repo to create job for
+    :ivar __git_status: `boolean` Whether the job has git status enabled
+    """
     def __init__(self, jenkinsfile, git_repo, git_status):
         self.__jenkinsfile = jenkinsfile
         self.__git_repo = git_repo
@@ -25,6 +40,11 @@ class Job:
 
 
 class PythonJob(Job):
+    """
+    Job subclass for Python Jobs. Initializes jenkinsfile with Python groovy pipeline.
+    :param git_repo: `GitRepo` Git repo to create job for
+    :param git_status: `boolean` Whether the job has git status enabled
+    """
     def __init__(self, git_repo, git_status):
         if git_status is True:
             jenkinsfile = "scripts/job_configuration/generate_job_python_with_git.groovy"
@@ -34,6 +54,11 @@ class PythonJob(Job):
 
 
 class CppJob(Job):
+    """
+    Job subclass for C++ Jobs. Initializes jenkinsfile with C++ groovy pipeline.
+    :param git_repo: `GitRepo` Git repo to create job for
+    :param git_status: `boolean` Whether the job has git status enabled
+    """
     def __init__(self, git_repo, git_status):
         if git_status is True:
             jenkinsfile = "scripts/job_configuration/generate_job_cpp_with_git.groovy"
@@ -43,6 +68,11 @@ class CppJob(Job):
 
 
 class JavaJob(Job):
+    """
+    Job subclass for Java Jobs. Initializes jenkinsfile with Java groovy pipeline.
+    :param git_repo: `GitRepo` Git repo to create job for
+    :param git_status: `boolean` Whether the job has git status enabled
+    """
     def __init__(self, git_repo, git_status):
         if git_status is True:
             jenkinsfile = "scripts/job_configuration/generate_job_java_with_git.groovy"
@@ -52,8 +82,18 @@ class JavaJob(Job):
 
 
 class JobFactory:
+    """
+    Factory class for Jobs
+    """
     @staticmethod
     def create_job(job_type, git_repo, git_status):
+        """
+        Factory method to create Job
+        :param job_type: `str` Type of Job (one of 'Python', 'C++', 'Java')
+        :param git_repo: `str` Git repo to create job for
+        :param git_status: `boolean` Whether the job has git status enabled
+        :return: `Job` Job object (one of `PythonJob`, `CppJob`, `JavaJob`)
+        """
         if job_type == "Python":
             return PythonJob(git_repo, git_status)
         elif job_type == "C++":

@@ -6,4 +6,4 @@ pat=$3
 url=$4
 job=$5
 
-java -jar $jenkins_cli -auth $username:$pat -s $url build $job
+java -jar "$jenkins_cli" -auth "$username":"$pat" -s "$url" build "$job"

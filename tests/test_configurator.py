@@ -1,3 +1,8 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 25/05/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 import unittest
 from unittest.mock import patch, MagicMock
 from src.service.configurator import Configurator
@@ -15,11 +20,11 @@ class TestConfigurator(unittest.TestCase):
     def test_perform_fresh_install_success(self, mock_run):
         mock_run.return_value = MagicMock(returncode=0, stdout="token:my_token")
 
-        with patch.object(self.configurator, 'get_pat', return_value='my_token'):
+        with patch.object(self.configurator, 'get_token', return_value='my_token'):
             with patch.object(self.configurator, 'add_jenkins_credentials') as mock_add_creds:
                 with patch.object(self.configurator, 'add_jenkins_instance') as mock_add_instance:
                     with patch.object(self.configurator, 'install_plugins') as mock_install_plugins:
-                        with patch.object(self.configurator, 'disable_security') as mock_disable_security:
+                        with patch.object(self.configurator, 'config_setup') as mock_disable_security:
                             self.configurator.perform_fresh_install("username", "password", False)
 
                             self.mock_emit.assert_any_call(0, "Installing Jenkins...\n")
@@ -51,7 +56,7 @@ class TestConfigurator(unittest.TestCase):
     def test_disable_security(self, mock_run):
         mock_run.return_value = MagicMock(returncode=0, stderr="")
 
-        self.configurator.disable_security("username", "token", "url")
+        self.configurator.config_setup("username", "token", "url")
         self.mock_emit.assert_not_called()
 
     def test_singleton_behavior(self):
