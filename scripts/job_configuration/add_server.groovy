@@ -3,6 +3,7 @@ import org.jenkinsci.plugins.github.config.GitHubServerConfig
 
 def github = jenkins.model.Jenkins.instance.getExtensionList(GitHubPluginConfig.class)[0]
 
+// Add GitHub Server to jenkins config
 def serverConfig = new GitHubServerConfig("gh_token")
 serverConfig.setName("GITHUB_SERVER")
 serverConfig.setManageHooks(false)

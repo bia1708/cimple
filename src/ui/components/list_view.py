@@ -1,7 +1,15 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 21/04/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 from PySide6.QtWidgets import QListView
 
 
 class ListView(QListView):
+    """
+    ListView Component Class for custom list views.
+    """
     def __init__(self, parent=None):
         super(ListView, self).__init__(parent)
         

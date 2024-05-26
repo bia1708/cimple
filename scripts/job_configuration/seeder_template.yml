@@ -17,8 +17,6 @@
                         jobDsl scriptText: '''
                         {script}
                         '''
-                        // jobDsl targets:"generate_job.groovy",
-                        //     additionalParameters: [REPO : env.REPO, REPO_NAME : env.REPO_NAME]
                     }}
                 }}
             }}

@@ -1,3 +1,8 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 25/05/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 import unittest
 from src.domain.server import Server
 

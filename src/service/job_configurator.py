@@ -1,27 +1,47 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 17/03/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 import subprocess
-
 from PySide6.QtCore import QObject, Signal
 
-from src.domain.git_repo import Git_Repo
+from src.domain.git_repo import GitRepo
 from src.domain.job import *
 
 
 class JobConfigurator(QObject):
+    """
+    Configurator Class for job configuration. Contains all the methods needed to configure jobs.
+    :ivar __server: `Server` current server instance
+    """
     def __init__(self, server):
         super().__init__()
         self.__server = server
 
     def create_job(self, git_repo, git_status):
+        """
+        Function to create a new job
+        :param git_repo: `GitRepo` repository instance
+        :param git_status: `boolean` indicating whether the user has enabled GitHub Integration
+        """
+        # Get the job type needed by checking the repository language
         job_type = self.get_repo_language(git_repo)
+        print("Job type: " + job_type)
+
+        # Create .ini file used by jenkins-job-builder
         self.create_jenkins_jobs_ini()
 
-        print("Job type: " + job_type)
+        # Create job by using the JobFactory. jenkinsfile will be initializes based on job_type
         new_job = JobFactory.create_job(job_type, git_repo, git_status)
+
+        # Get the contents of the correct pipeline script to be used
         jenkinsfile = new_job.get_jenkinsfile()
         pipeline_script_file = open(jenkinsfile, "r")
-
         pipeline_script = pipeline_script_file.read()
         pipeline_script_file.close()
+
+        # Create "seeder.yml" file and load into it the seeder_template with the correct pipeline script
         with open("scripts/job_configuration/seeder_template.yml") as seeder_template_file:
             seeder_script = seeder_template_file.read()
         seeder_template_file.close()
@@ -32,7 +52,8 @@ class JobConfigurator(QObject):
 
         script_path = "scripts/job_configuration/create_job.sh"
         try:
-            command = ["bash", script_path, git_repo.get_repo_name(), self.__server.get_jnlp_file(), self.__server.get_url(), self.__server.get_username(), self.__server.get_token()]
+            command = ["bash", script_path, git_repo.get_repo_name(), self.__server.get_jnlp_file(),
+                       self.__server.get_url(), self.__server.get_username(), self.__server.get_token()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
@@ -42,18 +63,35 @@ class JobConfigurator(QObject):
             return None, e.returncode
 
     def init_repo(self, repo_name, git_username, git_pat, git_status):
-        git_repo = Git_Repo(repo_name, git_username, git_pat)
-        self.init_gh(git_pat, git_username, repo_name, self.__server.get_username(), self.__server.get_token(), self.__server.get_jnlp_file(), self.__server.get_url())
+        """
+        Function which initializes a repository job.
+        :param repo_name: `str` name of the repository
+        :param git_username: `str` git username
+        :param git_pat: `str` git PAT
+        :param git_status: `boolean` indicating whether the user has enabled GitHub Integration
+        """
+        git_repo = GitRepo(repo_name, git_username, git_pat)
+        self.init_gh(git_pat, git_username, repo_name, self.__server.get_username(), self.__server.get_token(),
+                     self.__server.get_jnlp_file(), self.__server.get_url())
         if git_status is True:
             self.setup_webhooks(git_repo)
-        job = self.create_job(git_repo, git_status)
-        # self.__jobs.add(job)
+        self.create_job(git_repo, git_status)
 
-    def init_gh(self, git_pat, git_username, repo_name, username, pat, jnlp, url):
+    def init_gh(self, git_pat, git_username, repo_name, username, token, jnlp, url):
+        """
+        Function which authenticates the user to GitHub CLI (gh)
+        :param git_pat: `str` git PAT
+        :param git_username: `str` git username
+        :param repo_name: `str` name of the repository
+        :param username: `str` Jenkins server username
+        :param token: `str` Jenkins server token
+        :param jnlp: `str` Jenkins server JNLP file path
+        :param url: `str` Jenkins server url
+        """
         script_path = "./scripts/job_configuration/git_auth.sh"
 
         try:
-            command = ["bash", script_path, git_pat, git_username, repo_name, username, pat, jnlp, url]
+            command = ["bash", script_path, git_pat, git_username, repo_name, username, token, jnlp, url]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
@@ -63,10 +101,16 @@ class JobConfigurator(QObject):
             return None, e.returncode
 
     def setup_webhooks(self, git_repo):
+        """
+        Function which enables webhooks for the given repository.
+        :param git_repo: `GitRepo` repository instance
+        """
         script_path = "./scripts/job_configuration/enable_webhooks.sh"
 
         try:
-            command = ["bash", script_path, git_repo.get_repo_name(), git_repo.get_git_username(), git_repo.get_git_pat(), self.__server.get_token(), self.__server.get_username(), self.__server.get_url(), self.__server.get_jnlp_file()]
+            command = ["bash", script_path, git_repo.get_repo_name(), git_repo.get_git_username(),
+                       git_repo.get_git_pat(), self.__server.get_token(), self.__server.get_username(),
+                       self.__server.get_url(), self.__server.get_jnlp_file()]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
@@ -74,20 +118,12 @@ class JobConfigurator(QObject):
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
 
-    def parse_repo(self, git_repo):
-        script_path = "./scripts/job_configuration/parse_repo.sh"
-
-        try:
-            command = ["bash", script_path, git_repo.get_git_username(), git_repo.get_repo_name()]
-            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
-
-            output = result.stderr.strip()
-            # print(output)
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
-            return None, e.returncode
-
     def get_repo_language(self, git_repo):
+        """
+        Function which gets the language of the repository.
+        :param git_repo: `GitRepo` repository instance
+        :return: `str` language of the repository
+        """
         script_path = "./scripts/job_configuration/get_repo_language.sh"
 
         try:
@@ -100,13 +136,17 @@ class JobConfigurator(QObject):
                 language = output.split(":")[1].replace("\"", "")
                 return language
             return None
-            # print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
 
     def create_jenkins_jobs_ini(self):
-        # Create .ini script for Jenkins Job Builder connection
+        """
+        Function which creates the .ini file for jenkins-job-builder, using current server data:
+            - `str` username
+            - `str` token
+            - `str` URL
+        """
         text = "[job_builder]\n" + \
             "ignore_cache=True\n" + \
             "keep_descriptions=False\n" + \
@@ -123,15 +163,19 @@ class JobConfigurator(QObject):
         ini_file.close()
 
     def run_job(self, job):
+        """
+        Function which triggers a pipeline run by the given job name.
+        :param job: `str` job name
+        """
         script_path = "./scripts/job_configuration/run_job.sh"
 
         try:
-            command = ["bash", script_path, self.__server.get_jnlp_file(), self.__server.get_username(), self.__server.get_token(),
-                       self.__server.get_url(), job]
+            command = ["bash", script_path, self.__server.get_jnlp_file(), self.__server.get_username(),
+                       self.__server.get_token(), self.__server.get_url(), job]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
             output = result.stderr.strip()
-            # print(output)
+            print(output)
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             return None, e.returncode
@@ -139,6 +183,12 @@ class JobConfigurator(QObject):
     auth_signal = Signal(int, str)
 
     def validate_gh_credentials(self, git_pat, git_username):
+        """
+        Function which validates the user's git credentials (tries authentication, validates that the token belongs to
+        the user). Signals are sent to the UI in order to update it accordingly.
+        :param git_pat: `str` GitHub PAT
+        :param git_username: `str` git username
+        """
         script_path = "./scripts/job_configuration/check_auth.sh"
 
         try:
@@ -164,6 +214,11 @@ class JobConfigurator(QObject):
         return False
 
     def validate_token_permissions(self, git_pat):
+        """
+        Function which validates the given token's permissions (needed permissions are: gist, repo:hook).
+        Signals are sent to the UI in order to update it accordingly.
+        :param git_pat: `str` GitHub PAT
+        """
         script_path = "./scripts/job_configuration/check_git_pat_permissions.sh"
 
         try:
@@ -187,6 +242,13 @@ class JobConfigurator(QObject):
         return False
 
     def validate_repo_exists(self, username, git_repo):
+        """
+        Function which validates that the given repository exists.
+        Signals are sent to the UI in order to update it accordingly.
+        :param username: `str` username
+        :param git_repo: `str` repository link
+        :return:
+        """
         script_path = "./scripts/job_configuration/check_git_repo_exists.sh"
 
         try:

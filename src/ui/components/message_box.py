@@ -1,7 +1,15 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 21/04/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 from PySide6.QtWidgets import QMessageBox
 
 
 class MessageBox(QMessageBox):
+    """
+    MessageBox Component Class for custom QMessageBoxes.
+    """
     def __init__(self, parent=None):
         super(MessageBox, self).__init__(parent)
         self.setWindowTitle('cimple')

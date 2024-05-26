@@ -1,9 +1,14 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 25/05/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 import unittest
-from src.domain.git_repo import Git_Repo
+from src.domain.git_repo import GitRepo
 
 class TestGitRepo(unittest.TestCase):
     def setUp(self):
-        self.repo = Git_Repo("sample_repo", "sample_username", "sample_pat")
+        self.repo = GitRepo("sample_repo", "sample_username", "sample_pat")
 
     def test_getters(self):
         # Test the getters

@@ -1,3 +1,8 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 13/04/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 import unittest
 import os
 from tempfile import NamedTemporaryFile

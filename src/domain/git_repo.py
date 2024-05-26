@@ -1,4 +1,20 @@
-class Git_Repo:
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 17/03/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
+
+
+class GitRepo:
+    """
+    Domain class for Git Repositories (projects)
+    :param repo_name: `str` Name of the repository
+    :param git_username: `str` Git username
+    :param git_pat: `str` Git Personal Access Token
+    :ivar __repo_name: `str` Name of the repository
+    :ivar __git_username: `str` Git username
+    :ivar __git_pat: `str` Git Personal Access Token
+    """
     def __init__(self, repo_name, git_username, git_pat):
         self.__repo_name = repo_name
         self.__git_username = git_username

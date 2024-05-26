@@ -1,3 +1,8 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 29/04/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
 from PySide6.QtCore import Qt, Signal, QThread
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFormLayout, QLineEdit, QMessageBox, QCheckBox
 
@@ -7,6 +12,20 @@ from src.ui.components.message_box import MessageBox
 
 
 class Worker(QThread):
+    """
+    Worker Thread Class for connecting to server.
+    :param config: `Configurator` instance
+    :param username: `str` Jenkins username
+    :param password: `str` Jenkins password
+    :param url: `str` Jenkins URL
+    :param plugins: `boolean` True if downloading plugins is enabled
+    :ivar config: `Configurator` instance
+    :ivar username: `str` Jenkins username
+    :ivar password: `str` Jenkins password
+    :ivar url: `str` Jenkins URL
+    :ivar plugins: `boolean` True if downloading plugins is enabled
+    :ivar finished_signal: `Signal` signal when the worker thread is finished
+    """
     def __init__(self, config, username, password, url, plugins):
         super().__init__()
         self.config = config
@@ -19,15 +38,38 @@ class Worker(QThread):
     finished_signal = Signal(int, str)
 
     def run(self):
+        """
+        Method that runs the worker thread. The thread calls the connect function inside the Configurator class.
+        """
         self.config.connect_to_existing_jenkins(self.username, self.password, self.url, self.plugins)
-        # self.finished_signal.emit(status)
-        
+
     def emit_signal(self, status, msg):
-        print(msg)
+        """
+        Function which emits a signal when the thread is finished
+        :param status: `int` status code
+        :param msg: `str` message
+        """
         self.finished_signal.emit(status, msg)
 
 
 class ConnectToServerFormView(QWidget):
+    """
+    View class for connecting to server.
+    :param configurator: `Configurator` instance
+    :ivar _configurator: `Configurator` instance
+    :ivar _form_widget: `QFormLayout` instance
+    :ivar _username_label: `QLabel` label for username
+    :ivar _username_line_edit: `QLineEdit` label for username
+    :ivar _password_label: `QLabel` label for password
+    :ivar _password_line_edit: `QLineEdit` label for password
+    :ivar _url_label: `QLabel` label for url
+    :ivar _url_line_edit: `QLineEdit` label for url
+    :ivar _checkbox: `QCheckBox` checkbox for installing recommended plugins
+    :ivar _next_button: `QPushButton` button for next step
+    :ivar _label: `QLabel` label for window title
+    :ivar _message_box: `QMessageBox` messagebox for error notifications
+    :ivar finished_signal: `Signal` signal to notify the MainWindow
+    """
     def __init__(self, configurator):
         super().__init__()
         # Create form widget
@@ -50,7 +92,7 @@ class ConnectToServerFormView(QWidget):
         self._password_line_edit.setEchoMode(QLineEdit.EchoMode.Password)
         self._password_line_edit.textChanged.connect(self.check_input)
 
-        # Username label + form
+        # URL label + form
         self._url_label = QLabel("Jenkins URL:")
         self._url_line_edit = LineEdit()
         self._url_line_edit.setPlaceholderText("Jenkins URL")
@@ -88,6 +130,9 @@ class ConnectToServerFormView(QWidget):
     finished_signal = Signal(int, str)
 
     def check_input(self):
+        """
+        Function which validates user input before enabling the "Next" button.
+        """
         username = self._username_line_edit.text().strip()
         password = self._password_line_edit.text().strip()
         url = self._url_line_edit.text().strip()
@@ -95,18 +140,27 @@ class ConnectToServerFormView(QWidget):
         self._next_button.setEnabled(bool(username) and bool(password) and bool(url))
 
     def next_button_action(self):
+        """
+        Function which begins the "Connect to Server" function by launching a worker thread.
+        """
         self.setCursor(Qt.CursorShape.BusyCursor)
-        self.worker = Worker(self._configurator, self._username_line_edit.text(), self._password_line_edit.text(), self._url_line_edit.text(), self._checkbox.isChecked())
+        self.worker = Worker(self._configurator, self._username_line_edit.text(), self._password_line_edit.text(),
+                             self._url_line_edit.text(), self._checkbox.isChecked())
         self.worker.start()
         self.worker.finished_signal.connect(self.finish_connect)
 
     def finish_connect(self, status, msg):
+        """
+        Function which executes when the worker thread is finished. If there are any errors, it spawns a message box
+        containing the error. This view then closes itself.
+        :param status: `int` status code
+        :param msg: `str` message
+        """
         if status != 1:
             self.setCursor(Qt.CursorShape.ArrowCursor)
             self._message_box.setIcon(QMessageBox.Icon.Critical)
             self._message_box.setText(msg)
             self._message_box.setWindowTitle("Error")
-            # self._message_box.buttonClicked.connect(lambda: self.error_signal.emit(message))
             self._message_box.exec()
 
         self.finished_signal.emit(status, msg)

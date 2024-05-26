@@ -1,5 +1,14 @@
+"""
+@Author: Bianca Popu (bia1708)
+@Date: 6/03/2024
+@Links: https://github.com/bia1708/cimple.git
+"""
+
 
 class Repository:
+    """
+    Template class for repository
+    """
     def __init__(self):
         self.__items = []
 
