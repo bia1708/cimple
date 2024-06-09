@@ -286,7 +286,7 @@ class Configurator(QObject):
         """
         jobs_with_info = []
         jenkins = self.__current_server.to_api_object()
-        jobs = jenkins.get_all_jobs()
+        jobs = jenkins.get_jobs()
         for job in jobs:
             job_name = job['name']
             job_info = None
